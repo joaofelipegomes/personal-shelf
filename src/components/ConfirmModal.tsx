@@ -25,15 +25,15 @@ export const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }: Co
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-3xl p-8 shadow-2xl z-[4001] text-center"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-3xl p-8 shadow-2xl shadow-sm border border-black/5 z-[4001] text-center"
           >
-            <h3 className="text-xl font-bold text-black">{title}</h3>
+            <h3 className="text-lg font-bold text-black">{title}</h3>
             <p className="text-gray-500 mt-2 text-sm leading-relaxed">{message}</p>
             
             <div className="flex gap-3 mt-8">
               <button
                 onClick={onCancel}
-                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors cursor-pointer"
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
@@ -42,7 +42,7 @@ export const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }: Co
                   onConfirm();
                   onCancel();
                 }}
-                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors cursor-pointer shadow-lg shadow-red-200"
+                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors cursor-pointer"
               >
                 Excluir
               </button>

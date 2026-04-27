@@ -5,7 +5,7 @@ import { Auth } from './components/Auth';
 function ProfilePage() {
   const { username } = useParams();
   return (
-    <div className="w-full h-screen overflow-hidden selection:bg-black/10">
+    <div className="w-full h-[100dvh] overflow-hidden selection:bg-black/10">
       <InfiniteCanvas username={username} />
     </div>
   );

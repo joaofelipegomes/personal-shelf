@@ -36,6 +36,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 body::-webkit-scrollbar {
@@ -45,6 +48,9 @@ body::-webkit-scrollbar {
 html {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 html::-webkit-scrollbar {

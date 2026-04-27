@@ -45,7 +45,7 @@ export const ShelfGrid = ({ items, onDelete, onItemClick }: ShelfGridProps) => {
         className="flex flex-col justify-center items-center py-20 text-[#999]"
       >
         <p className="font-medium text-slate-900 text-xl">Nenhum item encontrado.</p>
-        <p className="text-sm">Sua estante está vazia.</p>
+        <p className="text-sm">Sua prateleira está vazia.</p>
       </motion.div>
     );
   }
