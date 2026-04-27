@@ -10,10 +10,28 @@
 
 @theme {
   --font-sans: "Eudoxus Sans", system-ui, -apple-system, sans-serif;
+  --color-canvas-bg: #f0f0f0;
+  --color-canvas-dots: #d1d1d1;
+}
+
+/* Forçando o tema claro como padrão */
+:root {
+  --color-canvas-bg: #f0f0f0;
+  --color-canvas-dots: #d1d1d1;
+}
+
+/* Mantendo as definições aqui, mas elas não serão aplicadas por causa do seletor :root acima */
+@media (prefers-color-scheme: dark) {
+  .enable-dark-mode {
+    --color-canvas-bg: #1e1d1b;
+    --color-canvas-dots: #383735;
+  }
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-canvas-bg);
+  color: #000 !important; /* Força cor do texto preta */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: none;

@@ -8,8 +8,8 @@ export interface ShelfItem {
   categoria: Category;
   nota: number;
   imagemUrl: string;
-  descricao: string;
   x: number;
   y: number;
   rotation: number;
+  zIndex?: number;
 }

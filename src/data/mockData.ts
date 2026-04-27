@@ -8,8 +8,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-01-10'),
     categoria: 'Livro',
     nota: 5,
-    imagemUrl: '/2985362C-7DCF-4CD3-9AB7-DA0717605D2A.jpeg',
-    descricao: '...'
+    imagemUrl: '/2985362C-7DCF-4CD3-9AB7-DA0717605D2A.jpeg'
   },
   {
     id: '2',
@@ -18,8 +17,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-02-14'),
     categoria: 'Teatro',
     nota: 4.5,
-    imagemUrl: '/F18925B0-7E90-43B9-B9DB-D1D9DA833698_1_105_c.jpeg',
-    descricao: '...'
+    imagemUrl: '/F18925B0-7E90-43B9-B9DB-D1D9DA833698_1_105_c.jpeg'
   },
   {
     id: '3',
@@ -28,8 +26,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-03-01'),
     categoria: 'Teatro',
     nota: 5,
-    imagemUrl: '/1EBEB7DD-8492-47D2-8193-A251B1A0625E_1_105_c.jpeg',
-    descricao: '...'
+    imagemUrl: '/1EBEB7DD-8492-47D2-8193-A251B1A0625E_1_105_c.jpeg'
   },
   {
     id: '4',
@@ -38,8 +35,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-03-22'),
     categoria: 'Teatro',
     nota: 5,
-    imagemUrl: '/7AEF0394-19A6-4C48-8FBC-30439B76CF32_1_105_c.jpeg',
-    descricao: '...'
+    imagemUrl: '/7AEF0394-19A6-4C48-8FBC-30439B76CF32_1_105_c.jpeg'
   },
   {
     id: '5',
@@ -48,8 +44,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-04-01'),
     categoria: 'Livro',
     nota: 5,
-    imagemUrl: '/EDDE0A69-35A7-4C6A-A031-1EAA756F8F53.jpeg',
-    descricao: '...'
+    imagemUrl: '/EDDE0A69-35A7-4C6A-A031-1EAA756F8F53.jpeg'
   },
   {
     id: '6',
@@ -58,8 +53,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-04-15'),
     categoria: 'Livro',
     nota: 5,
-    imagemUrl: '/7EA068EC-7AF6-47DB-B5A3-E1FF25EDBFCC.jpeg',
-    descricao: '...'
+    imagemUrl: '/7EA068EC-7AF6-47DB-B5A3-E1FF25EDBFCC.jpeg'
   },
   {
     id: '7',
@@ -68,8 +62,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-03-28'),
     categoria: 'Teatro',
     nota: 5,
-    imagemUrl: '/657708ED-0CAD-4870-B281-30975CB6DAC8_1_105_c.jpeg',
-    descricao: '...'
+    imagemUrl: '/657708ED-0CAD-4870-B281-30975CB6DAC8_1_105_c.jpeg'
   },
   {
     id: '9',
@@ -78,8 +71,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-05-01'),
     categoria: 'Livro',
     nota: 4.9,
-    imagemUrl: '/71-YhujYUxS.jpg',
-    descricao: '...'
+    imagemUrl: '/71-YhujYUxS.jpg'
   },
   {
     id: '10',
@@ -88,8 +80,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-05-01'),
     categoria: 'Livro',
     nota: 4.9,
-    imagemUrl: '/22DD273C-841B-4490-B3B4-BF77112FC684.jpeg',
-    descricao: '...'
+    imagemUrl: '/22DD273C-841B-4490-B3B4-BF77112FC684.jpeg'
   },
   {
     id: '11',
@@ -98,8 +89,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-05-01'),
     categoria: 'Música',
     nota: 4.9,
-    imagemUrl: '/1E43A051-DF14-4C69-8B07-DA5BC6E446FF.jpeg',
-    descricao: '...'
+    imagemUrl: '/1E43A051-DF14-4C69-8B07-DA5BC6E446FF.jpeg'
   },
   {
     id: '12',
@@ -108,8 +98,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-05-01'),
     categoria: 'Música',
     nota: 5,
-    imagemUrl: '/5AE430D6-BFE5-4BF6-838F-350624B2FC40.jpeg',
-    descricao: '...'
+    imagemUrl: '/5AE430D6-BFE5-4BF6-838F-350624B2FC40.jpeg'
   },
   {
     id: '13',
@@ -118,8 +107,7 @@ export const mockItemsBase: Omit<ShelfItem, 'x' | 'y' | 'rotation'>[] = [
     data: new Date('2026-05-01'),
     categoria: 'Música',
     nota: 5,
-    imagemUrl: '/F37AD981-401D-4BDA-B284-D22AF1BC6F81.jpeg',
-    descricao: '...'
+    imagemUrl: '/F37AD981-401D-4BDA-B284-D22AF1BC6F81.jpeg'
   }
 ];
 
