@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { InfiniteCanvas } from './components/InfiniteCanvas';
 import { Auth } from './components/Auth';
 
@@ -12,6 +13,21 @@ function ProfilePage() {
 }
 
 function App() {
+  useEffect(() => {
+    const handleGestureStart = (e: Event) => e.preventDefault();
+    const handleWheelZoom = (e: WheelEvent) => {
+      if (e.ctrlKey) e.preventDefault();
+    };
+
+    document.addEventListener('gesturestart', handleGestureStart);
+    document.addEventListener('wheel', handleWheelZoom, { passive: false });
+
+    return () => {
+      document.removeEventListener('gesturestart', handleGestureStart);
+      document.removeEventListener('wheel', handleWheelZoom);
+    };
+  }, []);
+
   return (
     <Router>
       <Routes>

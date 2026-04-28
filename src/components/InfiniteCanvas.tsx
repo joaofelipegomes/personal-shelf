@@ -115,6 +115,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   const [notFound, setNotFound] = useState(false);
   const [profileData, setProfileData] = useState<{id: string, username: string, full_name: string | null, bg_color?: string} | null>(null);
   
+  const [isMobile, setIsMobile] = useState(false);
   const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [previewColor, setPreviewColor] = useState<string | null>(null);
@@ -122,6 +123,13 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   const showToast = (message: string, type: ToastType) => {
     setToast({ message, type });
   };
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useMotionValueEvent(scale, "change", (latest) => {
     setZoomDisplay(Math.round(latest * 100));
@@ -269,7 +277,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   const handlePositionChange = (id: string, newX: number, newY: number) => {
     setItems(prev => prev.map(item => item.id === id ? { ...item, x: newX, y: newY } : item));
     const item = items.find(i => i.id === id);
-    if (item) savePosition(id, { x: newX, y: newY, rotation: item.rotation, zIndex: item.zIndex });
+    if (item && isOwner) savePosition(id, { x: newX, y: newY, rotation: item.rotation, zIndex: item.zIndex });
     setIsDraggingCard(false);
   };
 
@@ -278,7 +286,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     setMaxZIndex(newZ);
     setItems(prev => prev.map(item => item.id === id ? { ...item, zIndex: newZ } : item));
     const item = items.find(i => i.id === id);
-    if (item) savePosition(id, { x: item.x, y: item.y, rotation: item.rotation, zIndex: newZ });
+    if (item && isOwner) savePosition(id, { x: item.x, y: item.y, rotation: item.rotation, zIndex: newZ });
     setIsDraggingCard(true);
   };
 
@@ -287,8 +295,16 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     const newZ = maxZIndex + 1;
     setMaxZIndex(newZ);
     const currentScale = scale.get();
-    const viewportCenterX = (window.innerWidth / 2 - x.get()) / currentScale;
-    const viewportCenterY = (window.innerHeight / 2 - y.get()) / currentScale;
+    
+    // Pegar dimensões reais do container para centralização precisa
+    const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
+    const containerHeight = containerRef.current?.clientHeight || window.innerHeight;
+    
+    const viewportCenterX = (containerWidth / 2 - x.get()) / currentScale;
+    const viewportCenterY = (containerHeight / 2 - y.get()) / currentScale;
+    
+    const cardWidth = isMobile ? 130 : 180;
+    const cardHeight = isMobile ? 180 : 250;
     
     let rotation = 0;
     if (data.isAutoRotation) {
@@ -299,7 +315,16 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
       else rotation = 0;
     }
 
-    const newItemData = { user_id: currentUserId, titulo: data.titulo, nota: data.nota, imagem_url: data.imagemUrl, x: viewportCenterX - 90, y: viewportCenterY - 120, rotation, z_index: newZ };
+    const newItemData = { 
+      user_id: currentUserId, 
+      titulo: data.titulo, 
+      nota: data.nota, 
+      imagem_url: data.imagemUrl, 
+      x: viewportCenterX - (cardWidth / 2), 
+      y: viewportCenterY - (cardHeight / 2), 
+      rotation, 
+      z_index: newZ 
+    };
     const { data: savedItem, error } = await supabase.from('shelf_items').insert([newItemData]).select().single();
     if (error) {
       showToast('Erro ao salvar item: ' + error.message, 'error');
@@ -315,9 +340,12 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   };
 
   useEffect(() => {
+    if (isMobile) {
+      scale.set(0.7);
+    }
     x.set(-(ORIGIN_X - window.innerWidth / 2));
     y.set(-(ORIGIN_Y - window.innerHeight / 2));
-  }, [x, y]);
+  }, [isMobile, x, y, scale]);
 
   useEffect(() => {
     const handleGlobalUp = () => setIsDraggingCard(false);
@@ -342,7 +370,19 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     }
   }, [currentBgColor]);
 
-  if (loading) return <div className="flex justify-center items-center bg-[#f0f0f0] w-full h-[100dvh]"><p className="font-medium text-gray-400 text-sm uppercase tracking-widest animate-pulse">Carregando prateleira...</p></div>;
+  if (loading) return (
+    <div 
+      className="flex justify-center items-center w-full h-[100dvh] transition-colors duration-500" 
+      style={{ backgroundColor: currentBgColor }}
+    >
+      <p 
+        className="font-medium text-sm uppercase tracking-widest animate-pulse opacity-40"
+        style={{ color: getContrastColor(currentBgColor) }}
+      >
+        Carregando prateleira...
+      </p>
+    </div>
+  );
   if (notFound) return <div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100dvh] text-center"><h2 className="font-bold text-black text-2xl">Prateleira não encontrada</h2><p className="mt-2 text-gray-500">O usuário @{username} ainda não criou sua prateleira.</p><button onClick={() => navigate('/')} className="bg-black mt-6 px-6 py-3 rounded-2xl font-bold text-white hover:scale-105 transition-transform cursor-pointer">Ir para o Início</button></div>;
 
   return (
@@ -416,7 +456,12 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
         drag
         dragListener={!isDraggingCard}
         dragMomentum={true}
-        dragConstraints={{ left: -4000, right: 1000, top: -4000, bottom: 1000 }}
+        dragConstraints={{ 
+          left: -(CANVAS_SIZE - (containerRef.current?.clientWidth || window.innerWidth)), 
+          right: 0, 
+          top: -(CANVAS_SIZE - (containerRef.current?.clientHeight || window.innerHeight)), 
+          bottom: 0 
+        }}
         dragElastic={0.05}
         dragTransition={{ power: 0.2, timeConstant: 200 }}
         style={{ x, y, scale }}
@@ -439,7 +484,15 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
         </div>
 
         {items.map((item) => (
-          <ProjectCard key={item.id} project={item} onPositionChange={handlePositionChange} zIndex={item.zIndex || 1} onDragStart={() => bringToFront(item.id)} onDelete={(id) => setConfirmDelete(id)} isDraggable={true} />
+          <ProjectCard 
+            key={item.id} 
+            project={item} 
+            onPositionChange={handlePositionChange} 
+            zIndex={item.zIndex || 1} 
+            onDragStart={() => bringToFront(item.id)} 
+            onDelete={isOwner ? (id) => setConfirmDelete(id) : undefined} 
+            isDraggable={true} 
+          />
         ))}
       </motion.div>
 

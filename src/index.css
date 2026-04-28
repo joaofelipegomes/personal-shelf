@@ -39,6 +39,7 @@ body {
   overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: pan-x pan-y;
 }
 
 body::-webkit-scrollbar {
@@ -51,6 +52,7 @@ html {
   overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: pan-x pan-y;
 }
 
 html::-webkit-scrollbar {
