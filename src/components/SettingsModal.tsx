@@ -97,12 +97,14 @@ export const SettingsModal = ({ isOpen, onClose, currentProfile, onUpdate, onPre
   }, [formData.bg_color, isOpen, onPreviewColorChange]);
 
   useEffect(() => {
-    setFormData({
-      username: currentProfile.username,
-      full_name: currentProfile.full_name || '',
-      bg_color: currentProfile.bg_color || '#f0f0f0'
-    });
-  }, [currentProfile]);
+    if (isOpen) {
+      setFormData({
+        username: currentProfile.username,
+        full_name: currentProfile.full_name || '',
+        bg_color: currentProfile.bg_color || '#f0f0f0'
+      });
+    }
+  }, [isOpen, currentProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

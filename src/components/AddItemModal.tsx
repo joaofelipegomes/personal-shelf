@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const getContrastColor = (hex: string) => {
@@ -36,6 +36,18 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, buttonColor = '#000000' }
 
   const buttonTextColor = getContrastColor(buttonColor);
 
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        titulo: '',
+        nota: 0,
+        imagemUrl: '',
+        isAutoRotation: true,
+        rotationType: 'center',
+      });
+    }
+  }, [isOpen]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -56,7 +68,18 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, buttonColor = '#000000' }
     onAdd(formData as any);
     setFormData({
       titulo: '',
-      nota: 5,
+      nota: 0,
+      imagemUrl: '',
+      isAutoRotation: true,
+      rotationType: 'center',
+    });
+    onClose();
+  };
+
+  const handleClose = () => {
+    setFormData({
+      titulo: '',
+      nota: 0,
       imagemUrl: '',
       isAutoRotation: true,
       rotationType: 'center',
@@ -73,7 +96,7 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, buttonColor = '#000000' }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="z-[2000] fixed inset-0 cursor-default"
           />
           
@@ -87,7 +110,7 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, buttonColor = '#000000' }
           >
             <div className="flex justify-end items-center p-6 pb-0">
               <button 
-                onClick={onClose}
+                onClick={handleClose}
                 className="hover:bg-gray-100 p-2 rounded-full text-gray-500 transition-colors cursor-pointer"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

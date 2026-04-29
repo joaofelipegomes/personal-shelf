@@ -300,8 +300,8 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
     const containerHeight = containerRef.current?.clientHeight || window.innerHeight;
     
-    const viewportCenterX = (containerWidth / 2 - x.get()) / currentScale;
-    const viewportCenterY = (containerHeight / 2 - y.get()) / currentScale;
+    const viewportCenterX = ORIGIN_X + (containerWidth / 2 - x.get() - ORIGIN_X) / currentScale;
+    const viewportCenterY = ORIGIN_Y + (containerHeight / 2 - y.get() - ORIGIN_Y) / currentScale;
     
     const cardWidth = isMobile ? 130 : 180;
     const cardHeight = isMobile ? 180 : 250;
@@ -456,44 +456,47 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
         drag
         dragListener={!isDraggingCard}
         dragMomentum={true}
-        dragConstraints={{ 
-          left: -(CANVAS_SIZE - (containerRef.current?.clientWidth || window.innerWidth)), 
-          right: 0, 
-          top: -(CANVAS_SIZE - (containerRef.current?.clientHeight || window.innerHeight)), 
-          bottom: 0 
-        }}
-        dragElastic={0.05}
         dragTransition={{ power: 0.2, timeConstant: 200 }}
-        style={{ x, y, scale }}
+        style={{ x, y }}
         className="absolute w-1250 h-1250 cursor-grab active:cursor-grabbing"
       >
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-
-        <div 
-          className="absolute flex items-center gap-3 opacity-20 text-black pointer-events-none select-none"
+        <motion.div 
           style={{ 
-            left: ORIGIN_X, 
-            top: ORIGIN_Y, 
-            transform: 'translate(-50%, -50%)' 
+            scale, 
+            transformOrigin: `${ORIGIN_X}px ${ORIGIN_Y}px`,
+            width: '100%',
+            height: '100%'
           }}
         >
-          <MoveIcon />
-          <p className="font-semibold text-base uppercase tracking-tight whitespace-nowrap">
-            Arraste para mover
-          </p>
-        </div>
+          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-        {items.map((item) => (
-          <ProjectCard 
-            key={item.id} 
-            project={item} 
-            onPositionChange={handlePositionChange} 
-            zIndex={item.zIndex || 1} 
-            onDragStart={() => bringToFront(item.id)} 
-            onDelete={isOwner ? (id) => setConfirmDelete(id) : undefined} 
-            isDraggable={true} 
-          />
-        ))}
+          <div 
+            className="absolute flex items-center gap-3 opacity-20 text-black pointer-events-none select-none"
+            style={{ 
+              left: ORIGIN_X, 
+              top: ORIGIN_Y, 
+              transform: 'translate(-50%, -50%)' 
+            }}
+          >
+            <MoveIcon />
+            <p className="font-semibold text-base uppercase tracking-tight whitespace-nowrap">
+              Arraste para mover
+            </p>
+          </div>
+
+          {items.map((item) => (
+            <ProjectCard 
+              key={item.id} 
+              project={item} 
+              onPositionChange={handlePositionChange} 
+              zIndex={item.zIndex || 1} 
+              onDragStart={() => bringToFront(item.id)} 
+              onDelete={isOwner ? (id) => setConfirmDelete(id) : undefined} 
+              isDraggable={true} 
+              canvasScale={scale.get()}
+            />
+          ))}
+        </motion.div>
       </motion.div>
 
       <AnimatePresence>

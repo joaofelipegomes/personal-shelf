@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ShelfItem } from '../types/item';
 import { StarIcon } from './StarIcon';
 
@@ -10,10 +10,12 @@ interface ProjectCardProps {
   onDragStart: () => void;
   onDelete?: (id: string) => void;
   isDraggable?: boolean;
+  canvasScale?: number;
 }
 
-export const ProjectCard = ({ project, onPositionChange, zIndex, onDragStart, onDelete, isDraggable = true }: ProjectCardProps) => {
+export const ProjectCard = ({ project, onPositionChange, zIndex, onDragStart, onDelete, isDraggable = true, canvasScale = 1 }: ProjectCardProps) => {
   const [showDelete, setShowDelete] = useState(false);
+  const dragStartPos = useRef({ x: project.x, y: project.y });
 
   useEffect(() => {
     if (!showDelete) return;
@@ -37,28 +39,37 @@ export const ProjectCard = ({ project, onPositionChange, zIndex, onDragStart, on
     <motion.div
       drag={isDraggable}
       dragMomentum={false}
-      onPointerDown={() => isDraggable && onDragStart()} // Traz para frente ao clicar
+      dragElastic={0}
+      onPointerDown={() => isDraggable && onDragStart()}
       onTap={handleTap}
       onDragStart={() => {
         if (isDraggable) {
+          // Salva a posição exata de onde o card começou a ser arrastado
+          dragStartPos.current = { x: project.x, y: project.y };
           onDragStart();
           setShowDelete(false);
         }
       }}
       onDragEnd={(_, info) => {
         if (isDraggable) {
-          onPositionChange(project.id, project.x + info.offset.x, project.y + info.offset.y);
+          // Cálculo matemático real:
+          // Posição Final = Posição Inicial + (Distância percorrida na tela / Escala do Canvas)
+          const newX = dragStartPos.current.x + info.offset.x / canvasScale;
+          const newY = dragStartPos.current.y + info.offset.y / canvasScale;
+          
+          onPositionChange(project.id, newX, newY);
         }
       }}
       initial={{ opacity: 0, scale: 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       whileHover={isDraggable ? { scale: 1.02, rotate: 0 } : {}}
-      whileDrag={isDraggable ? { scale: 1.05, cursor: 'grabbing' } : {}}
       style={{
         position: 'absolute',
         left: 0,
         top: 0,
+        // Usamos as propriedades x e y do Framer para posicionamento,
+        // mas baseadas estritamente no estado do project
         x: project.x,
         y: project.y,
         rotate: project.rotation,
@@ -72,7 +83,7 @@ export const ProjectCard = ({ project, onPositionChange, zIndex, onDragStart, on
             e.stopPropagation();
             onDelete(project.id);
           }}
-          onPointerDown={(e) => e.stopPropagation()} // Evita que o clique no botão ative o clique fora imediatamente
+          onPointerDown={(e) => e.stopPropagation()}
           className={`absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center transition-all z-10 cursor-pointer shadow-md hover:bg-red-600 ${showDelete ? 'opacity-100 scale-110' : 'opacity-0 scale-90 md:group-hover:opacity-100 md:group-hover:scale-100'}`}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -91,7 +102,6 @@ export const ProjectCard = ({ project, onPositionChange, zIndex, onDragStart, on
           {project.titulo}
         </h3>
         <div className="flex items-center gap-1 mt-1">
-          {/* Estrela preenchida com cantos arredondados */}
           <StarIcon />
           <span className="font-medium text-[11px] text-gray-500">{project.nota}</span>
         </div>
