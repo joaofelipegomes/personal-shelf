@@ -14,6 +14,26 @@
   --color-canvas-dots: #d1d1d1;
 }
 
+@keyframes rotate-bg {
+  from { transform: rotate(0deg) scale(1.2); }
+  to { transform: rotate(360deg) scale(1.2); }
+}
+
+.animate-rainbow-slow {
+  background: conic-gradient(
+    from 0deg,
+    #ff5f00 0deg,
+    #ffd700 72deg,
+    #00e676 144deg,
+    #00b0ff 216deg,
+    #d500f9 288deg,
+    #ff5f00 360deg
+  );
+  filter: blur(40px);
+  opacity: .5;
+  animation: rotate-bg 15s linear infinite;
+}
+
 /* Forçando o tema claro como padrão */
 :root {
   --color-canvas-bg: #f0f0f0;
@@ -30,10 +50,13 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-canvas-bg);
-  color: #000 !important; /* Força cor do texto preta */
+  color: #000 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.canvas-mode {
+  background-color: var(--color-canvas-bg);
   scrollbar-width: none;
   -ms-overflow-style: none;
   overscroll-behavior: none;
@@ -42,11 +65,11 @@ body {
   touch-action: pan-x pan-y;
 }
 
-body::-webkit-scrollbar {
+.canvas-mode::-webkit-scrollbar {
   display: none;
 }
 
-html {
+html.canvas-mode {
   scrollbar-width: none;
   -ms-overflow-style: none;
   overscroll-behavior: none;
@@ -55,7 +78,7 @@ html {
   touch-action: pan-x pan-y;
 }
 
-html::-webkit-scrollbar {
+html.canvas-mode::-webkit-scrollbar {
   display: none;
 }
 

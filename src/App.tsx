@@ -5,6 +5,16 @@ import { Auth } from './components/Auth';
 
 function ProfilePage() {
   const { username } = useParams();
+  
+  useEffect(() => {
+    document.documentElement.classList.add('canvas-mode');
+    document.body.classList.add('canvas-mode');
+    return () => {
+      document.documentElement.classList.remove('canvas-mode');
+      document.body.classList.remove('canvas-mode');
+    };
+  }, []);
+
   return (
     <div className="w-full h-[100dvh] overflow-hidden selection:bg-black/10">
       <InfiniteCanvas username={username} />
