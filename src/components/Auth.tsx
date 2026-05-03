@@ -24,6 +24,8 @@ export const Auth = () => {
   const [toast, setToast] = useState<{ message: string, type: ToastType, x?: number, y?: number } | null>(null);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
+  const [showEmailConfirmationDialog, setShowEmailConfirmationDialog] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState('');
   const navigate = useNavigate();
   const lastClickPos = useRef({ x: 0, y: 0 });
 
@@ -138,9 +140,11 @@ export const Auth = () => {
             }
             throw profileError;
           }
-          showToast('Conta criada com sucesso', 'success');
-          
-          setTimeout(() => navigate(`/${username.toLowerCase()}`), 1000);
+          setSubmittedEmail(email);
+          setShowEmailConfirmationDialog(true);
+          setEmail('');
+          setPassword('');
+          setUsername('');
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -329,6 +333,38 @@ export const Auth = () => {
           </button>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {showEmailConfirmationDialog && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/10 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center border border-black/5"
+            >
+              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-black mb-2 tracking-tight">Verifique seu e-mail</h3>
+              <p className="text-gray-600 mb-8 text-sm">
+                Enviamos um link de confirmação para <strong className="text-black">{submittedEmail}</strong>. 
+                Por favor, acesse sua caixa de entrada e clique no link para ativar sua conta.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowEmailConfirmationDialog(false)}
+                className="w-full bg-black text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-black/10 hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer"
+              >
+                OK, entendi!
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -359,11 +359,10 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   const handleDeleteAccount = async () => {
     if (!profileData) return;
     try {
-      const { error: cardsError } = await supabase.from('shelf_items').delete().eq('user_id', profileData.id);
-      if (cardsError) throw cardsError;
-
-      const { error: profileError } = await supabase.from('profiles').delete().eq('id', profileData.id);
-      if (profileError) throw profileError;
+      // Chama a função RPC no banco de dados que apaga tudo de uma vez (incluindo auth.users)
+      const { error } = await supabase.rpc('delete_user_account');
+      
+      if (error) throw error;
 
       await supabase.auth.signOut();
       window.location.href = '/';
