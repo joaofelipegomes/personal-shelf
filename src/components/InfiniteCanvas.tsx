@@ -1,5 +1,5 @@
 import { useMotionValue, motion, AnimatePresence, useMotionValueEvent, animate, useDragControls } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ProjectCard } from './ProjectCard';
 import type { ShelfItem, ItemType } from '../types/item';
 import { PlusIcon } from './PlusIcon';
@@ -259,70 +259,108 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     };
   }, [scale, x, y]);
 
-  useEffect(() => {
-    async function loadShelf() {
-      if (!username) {
-        setLoading(false);
-        return;
-      }
+  const loadShelf = useCallback(async (isBackground = false) => {
+    if (!username) {
+      if (!isBackground) setLoading(false);
+      return;
+    }
+    
+    if (!isBackground) {
       setLoading(true);
       setNotFound(false);
-      try {
-        const { data: profile, error: profileError } = await supabase.from('profiles').select('id, username, full_name, bg_color, avatar_url').eq('username', username.toLowerCase()).single();
-        if (profileError || !profile) {
+    }
+
+    try {
+      const { data: profile, error: profileError } = await supabase.from('profiles').select('id, username, full_name, bg_color, avatar_url').eq('username', username.toLowerCase()).single();
+      if (profileError || !profile) {
+        if (!isBackground) {
           setNotFound(true);
           setLoading(false);
-          return;
         }
-        setProfileData(profile);
-        const { data: shelfItems } = await supabase.from('shelf_items').select('*').eq('user_id', profile.id);
-        if (shelfItems) {
-          // Busca todas as curtidas para os itens desta prateleira
-          const { data: allLikes } = await supabase
-            .from('likes')
-            .select('item_id')
-            .in('item_id', shelfItems.map((i: any) => i.id));
-
-          const likesCountMap: Record<string, number> = {};
-          allLikes?.forEach((l: any) => {
-            likesCountMap[l.item_id] = (likesCountMap[l.item_id] || 0) + 1;
-          });
-
-          const mappedItems = shelfItems.map((i: any) => ({ 
-            ...i, 
-            type: i.type || 'image',
-            fontFamily: i.font_family || 'sans',
-            imagemUrl: i.imagem_url, 
-            zIndex: i.z_index,
-            likesCount: likesCountMap[i.id] || 0
-          }));
-          setItems(mappedItems);
-          const maxZ = shelfItems.length > 0 ? Math.max(...shelfItems.map((i: any) => i.z_index || 1), 10) : 10;
-          setMaxZIndex(maxZ);
-        }
-        const { data: { user } } = await supabase.auth.getUser();
-        const uid = user?.id || null;
-        setIsOwner(uid === profile.id);
-        setCurrentUserId(uid);
-
-        if (uid) {
-          const { data: likes } = await supabase
-            .from('likes')
-            .select('item_id')
-            .eq('user_id', uid);
-          if (likes) {
-            setLikedItems(new Set(likes.map((l: any) => l.item_id)));
-          }
-        }
-      } catch (err) {
-        console.error('Erro ao carregar prateleira:', err);
-        setNotFound(true);
-      } finally {
-        setLoading(false);
+        return;
       }
+      setProfileData(profile);
+      const { data: shelfItems } = await supabase.from('shelf_items').select('*').eq('user_id', profile.id);
+      if (shelfItems) {
+        // Busca todas as curtidas para os itens desta prateleira
+        const { data: allLikes } = await supabase
+          .from('likes')
+          .select('item_id')
+          .in('item_id', shelfItems.map((i: any) => i.id));
+
+        const likesCountMap: Record<string, number> = {};
+        allLikes?.forEach((l: any) => {
+          likesCountMap[l.item_id] = (likesCountMap[l.item_id] || 0) + 1;
+        });
+
+        const mappedItems = shelfItems.map((i: any) => ({ 
+          ...i, 
+          type: i.type || 'image',
+          fontFamily: i.font_family || 'sans',
+          imagemUrl: i.imagem_url, 
+          zIndex: i.z_index,
+          likesCount: likesCountMap[i.id] || 0
+        }));
+        
+        setItems(mappedItems);
+        const maxZ = shelfItems.length > 0 ? Math.max(...shelfItems.map((i: any) => i.z_index || 1), 10) : 10;
+        setMaxZIndex(maxZ);
+      }
+      const { data: { user } } = await supabase.auth.getUser();
+      const uid = user?.id || null;
+      setIsOwner(uid === profile.id);
+      setCurrentUserId(uid);
+
+      if (uid) {
+        const { data: likes } = await supabase
+          .from('likes')
+          .select('item_id')
+          .eq('user_id', uid);
+        if (likes) {
+          setLikedItems(new Set(likes.map((l: any) => l.item_id)));
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao carregar prateleira:', err);
+      if (!isBackground) setNotFound(true);
+    } finally {
+      if (!isBackground) setLoading(false);
     }
-    loadShelf();
   }, [username]);
+
+  useEffect(() => {
+    loadShelf();
+  }, [loadShelf]);
+
+  useEffect(() => {
+    if (!profileData?.id) return;
+
+    const channel = supabase
+      .channel(`shelf-changes-${profileData.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'shelf_items',
+          filter: `user_id=eq.${profileData.id}`
+        },
+        () => {
+          loadShelf(true);
+        }
+      )
+      .subscribe();
+
+    // Fallback: Polling a cada 10 segundos
+    const pollInterval = setInterval(() => {
+      loadShelf(true);
+    }, 10000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
+    };
+  }, [profileData?.id, loadShelf]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -693,9 +731,9 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
         dragMomentum={true}
         dragTransition={{ power: 0.2, timeConstant: 200 }}
         onPointerDown={(e) => {
-          setInteractionMenuId(null);
           // Só permite arrastar o canvas se NÃO clicou em um card ou botão
           if (!isModalOpen && !isSettingsOpen && !(e.target as HTMLElement).closest('.card-draggable') && !(e.target as HTMLElement).closest('button')) {
+            setInteractionMenuId(null);
             canvasDragControls.start(e);
             setHasInteracted(true);
           }

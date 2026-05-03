@@ -203,41 +203,9 @@ export const ProjectCard = ({
 					ref={mediaRef}
 					className="relative flex flex-col justify-center items-center px-8 py-4 text-center transition-all duration-300 group-hover:scale-110"
 				>
-					{isOwner && onEdit && (
-						<button
-							type="button"
-							onClick={(e) => {
-								e.stopPropagation();
-								onEdit(project);
-							}}
-							onPointerDown={(e) => {
-								e.stopPropagation();
-							}}
-							onPointerUp={(e) => e.stopPropagation()}
-							className={`z-10 absolute flex justify-center items-center bg-white opacity-0 group-hover:opacity-100 shadow-md border border-black/5 rounded-full w-9 h-9 text-black transition-all cursor-pointer hover:scale-110 active:scale-90 ${
-								corner === "tr"
-									? "-top-2 -right-2"
-									: corner === "br"
-										? "-bottom-2 -right-2"
-										: corner === "bl"
-											? "-bottom-2 -left-2"
-											: "-top-2 -left-2"
-							}`}
-						>
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-								<path
-									d="M18.799 3.0499C17.7324 1.98335 16.0032 1.98337 14.9366 3.04994L13.5236 4.46296L19.537 10.4763L20.9501 9.06321C22.0167 7.99665 22.0166 6.26746 20.9501 5.20092L18.799 3.0499Z"
-									fill="currentColor"
-								></path>
-								<path
-									d="M18.4764 11.537L12.463 5.52363L4.35808 13.6286C3.66361 14.3231 3.20349 15.2172 3.04202 16.1859L2.26021 20.8767C2.22039 21.1156 2.29841 21.3591 2.46968 21.5303C2.64095 21.7016 2.88439 21.7796 3.12331 21.7398L7.81417 20.958C8.78294 20.7965 9.67706 20.3364 10.3715 19.642L18.4764 11.537Z"
-									fill="currentColor"
-								></path>
-							</svg>
-						</button>
-					)}
+
 					<h3
-						className={`font-bold text-lg md:text-2xl text-black tracking-tighter leading-none whitespace-nowrap drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)] ${
+						className={`font-bold text-xl md:text-3xl text-black tracking-tighter leading-none whitespace-nowrap drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)] ${
 							project.fontFamily === "serif"
 								? "font-[Cormorant_Garamond]"
 								: project.fontFamily === "mono"
@@ -253,39 +221,7 @@ export const ProjectCard = ({
 			) : (
 				<>
 					<div ref={mediaRef} className="relative group/media">
-						{isOwner && onEdit && (
-							<button
-								type="button"
-								onClick={(e) => {
-									e.stopPropagation();
-									onEdit(project);
-								}}
-								onPointerDown={(e) => {
-									e.stopPropagation();
-								}}
-								onPointerUp={(e) => e.stopPropagation()}
-								className={`z-10 absolute flex justify-center items-center bg-white opacity-0 group-hover:opacity-100 shadow-md border border-black/5 rounded-full w-9 h-9 text-black transition-all cursor-pointer hover:scale-110 active:scale-90 ${
-									corner === "tr"
-										? "-top-2 -right-2"
-										: corner === "br"
-											? "-bottom-2 -right-2"
-											: corner === "bl"
-												? "-bottom-2 -left-2"
-												: "-top-2 -left-2"
-								}`}
-							>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-									<path
-										d="M18.799 3.0499C17.7324 1.98335 16.0032 1.98337 14.9366 3.04994L13.5236 4.46296L19.537 10.4763L20.9501 9.06321C22.0167 7.99665 22.0166 6.26746 20.9501 5.20092L18.799 3.0499Z"
-										fill="currentColor"
-									></path>
-									<path
-										d="M18.4764 11.537L12.463 5.52363L4.35808 13.6286C3.66361 14.3231 3.20349 15.2172 3.04202 16.1859L2.26021 20.8767C2.22039 21.1156 2.29841 21.3591 2.46968 21.5303C2.64095 21.7016 2.88439 21.7796 3.12331 21.7398L7.81417 20.958C8.78294 20.7965 9.67706 20.3364 10.3715 19.642L18.4764 11.537Z"
-										fill="currentColor"
-									></path>
-								</svg>
-							</button>
-						)}
+
 						<img
 							src={project.imagemUrl}
 							alt={project.titulo}
@@ -340,40 +276,65 @@ export const ProjectCard = ({
 									: "bottom-0"
 							}`}
 						>
-							<motion.button 
-								whileHover={{ scale: 1.1 }}
-								whileTap={{ scale: 0.9 }}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (onDoubleClick) onDoubleClick(project);
-									if (onCloseMenu) onCloseMenu();
-								}}
-								className="flex items-center justify-center bg-white shadow-2xl border border-black/5 w-12 h-12 rounded-full transition-all cursor-pointer group"
-								title={isLiked ? 'Descurtir' : 'Curtir'}
-							>
-								<div className={`${isLiked ? 'text-red-500' : 'text-black'} transition-colors`}>
-									<HeartIcon solid={!isLiked} broken={isLiked} size={20} />
-								</div>
-							</motion.button>
+							{!isOwner && (
+								<>
+									<motion.button 
+										whileHover={{ scale: 1.1 }}
+										whileTap={{ scale: 0.9 }}
+										onPointerDown={(e) => e.stopPropagation()}
+										onClick={(e) => {
+											e.stopPropagation();
+											if (onDoubleClick) onDoubleClick(project);
+										}}
+										className="flex items-center justify-center bg-white shadow-2xl border border-black/5 w-12 h-12 rounded-full transition-all cursor-pointer group"
+										title={isLiked ? 'Descurtir' : 'Curtir'}
+									>
+										<div className={`${isLiked ? 'text-red-500' : 'text-black'} transition-colors`}>
+											<HeartIcon solid={!isLiked} broken={isLiked} size={20} />
+										</div>
+									</motion.button>
 
-							<motion.button 
-								whileHover={{ scale: 1.1 }}
-								whileTap={{ scale: 0.9 }}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (onSave) onSave(project);
-									if (onCloseMenu) onCloseMenu();
-								}}
-								className="flex items-center justify-center bg-white shadow-2xl border border-black/5 w-12 h-12 rounded-full transition-all cursor-pointer group"
-								title="Salvar na minha prateleira"
-							>
-								<div className="text-black transition-colors">
-									<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-										<path fill-rule="evenodd" clip-rule="evenodd" d="M8.95711 15.0429C9.34763 15.4334 9.34763 16.0666 8.95711 16.4571L3.95711 21.4571C3.56658 21.8476 2.93342 21.8476 2.54289 21.4571C2.15237 21.0666 2.15237 20.4334 2.54289 20.0429L7.54289 15.0429C7.93342 14.6524 8.56658 14.6524 8.95711 15.0429Z" fill="currentColor"></path>
-										<path d="M17.7093 2.55346C19.4569 3.18528 20.8147 4.54305 21.4465 6.29064C21.5536 6.58633 21.6798 6.93507 21.7258 7.24165C21.7801 7.60384 21.744 7.94519 21.608 8.32365C21.3168 9.13408 20.6643 9.49626 19.9452 9.89542L18.5273 10.6861C18.0145 10.9721 17.676 11.1618 17.4348 11.3286C17.2 11.4909 17.1333 11.582 17.1056 11.6358C17.0909 11.6641 17.0453 11.8022 17.0573 12.2506C17.0686 12.6742 17.1236 13.2487 17.2024 14.0663C17.3296 15.3845 17.1109 16.6904 16.3502 17.9068C16.2218 18.1123 16.0604 18.3708 15.88 18.563C15.6669 18.7901 15.4215 18.9506 15.1053 19.0787C14.7835 19.2091 14.4907 19.2619 14.1748 19.2478C13.906 19.2358 13.5974 19.1656 13.3398 19.107C11.3641 18.6584 9.47833 17.5121 7.98305 16.0169C6.48778 14.5216 5.34151 12.6359 4.89294 10.6602C4.83436 10.4027 4.76418 10.0941 4.75221 9.82535C4.73813 9.50941 4.79103 9.21658 4.92151 8.89474C5.04969 8.5786 5.21026 8.3331 5.43747 8.12006C5.62978 7.93974 5.88832 7.7784 6.09379 7.65019C7.29324 6.90084 8.58854 6.66967 9.89679 6.78538C10.7321 6.85926 11.321 6.91095 11.754 6.91998C11.968 6.92445 12.2391 6.94301 12.3803 6.86947C12.4326 6.84219 12.5235 6.7753 12.6865 6.53889C12.8534 6.29676 13.0438 5.95698 13.3302 5.44342L14.1046 4.05478C14.5037 3.33567 14.8659 2.68318 15.6763 2.39201C16.0548 2.25603 16.3961 2.2199 16.7583 2.27422C17.0649 2.32019 17.4136 2.44643 17.7093 2.55346Z" fill="currentColor"></path>
-									</svg>
-								</div>
-							</motion.button>
+									<motion.button 
+										whileHover={{ scale: 1.1 }}
+										whileTap={{ scale: 0.9 }}
+										onPointerDown={(e) => e.stopPropagation()}
+										onClick={(e) => {
+											e.stopPropagation();
+											if (onSave) onSave(project);
+										}}
+										className="flex items-center justify-center bg-white shadow-2xl border border-black/5 w-12 h-12 rounded-full transition-all cursor-pointer group"
+										title="Salvar na minha prateleira"
+									>
+										<div className="text-black transition-colors">
+											<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+												<path fill-rule="evenodd" clip-rule="evenodd" d="M8.95711 15.0429C9.34763 15.4334 9.34763 16.0666 8.95711 16.4571L3.95711 21.4571C3.56658 21.8476 2.93342 21.8476 2.54289 21.4571C2.15237 21.0666 2.15237 20.4334 2.54289 20.0429L7.54289 15.0429C7.93342 14.6524 8.56658 14.6524 8.95711 15.0429Z" fill="currentColor"></path>
+												<path d="M17.7093 2.55346C19.4569 3.18528 20.8147 4.54305 21.4465 6.29064C21.5536 6.58633 21.6798 6.93507 21.7258 7.24165C21.7801 7.60384 21.744 7.94519 21.608 8.32365C21.3168 9.13408 20.6643 9.49626 19.9452 9.89542L18.5273 10.6861C18.0145 10.9721 17.676 11.1618 17.4348 11.3286C17.2 11.4909 17.1333 11.582 17.1056 11.6358C17.0909 11.6641 17.0453 11.8022 17.0573 12.2506C17.0686 12.6742 17.1236 13.2487 17.2024 14.0663C17.3296 15.3845 17.1109 16.6904 16.3502 17.9068C16.2218 18.1123 16.0604 18.3708 15.88 18.563C15.6669 18.7901 15.4215 18.9506 15.1053 19.0787C14.7835 19.2091 14.4907 19.2619 14.1748 19.2478C13.906 19.2358 13.5974 19.1656 13.3398 19.107C11.3641 18.6584 9.47833 17.5121 7.98305 16.0169C6.48778 14.5216 5.34151 12.6359 4.89294 10.6602C4.83436 10.4027 4.76418 10.0941 4.75221 9.82535C4.73813 9.50941 4.79103 9.21658 4.92151 8.89474C5.04969 8.5786 5.21026 8.3331 5.43747 8.12006C5.62978 7.93974 5.88832 7.7784 6.09379 7.65019C7.29324 6.90084 8.58854 6.66967 9.89679 6.78538C10.7321 6.85926 11.321 6.91095 11.754 6.91998C11.968 6.92445 12.2391 6.94301 12.3803 6.86947C12.4326 6.84219 12.5235 6.7753 12.6865 6.53889C12.8534 6.29676 13.0438 5.95698 13.3302 5.44342L14.1046 4.05478C14.5037 3.33567 14.8659 2.68318 15.6763 2.39201C16.0548 2.25603 16.3961 2.2199 16.7583 2.27422C17.0649 2.32019 17.4136 2.44643 17.7093 2.55346Z" fill="currentColor"></path>
+											</svg>
+										</div>
+									</motion.button>
+								</>
+							)}
+							{isOwner && onEdit && (
+								<motion.button 
+									whileHover={{ scale: 1.1 }}
+									whileTap={{ scale: 0.9 }}
+									onPointerDown={(e) => e.stopPropagation()}
+									onClick={(e) => {
+										e.stopPropagation();
+										onEdit(project);
+										if (onCloseMenu) onCloseMenu();
+									}}
+									className="flex items-center justify-center bg-white shadow-2xl border border-black/5 w-12 h-12 rounded-full transition-all cursor-pointer group"
+									title="Editar item"
+								>
+									<div className="text-black transition-colors">
+										<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+											<path d="M18.799 3.0499C17.7324 1.98335 16.0032 1.98337 14.9366 3.04994L13.5236 4.46296L19.537 10.4763L20.9501 9.06321C22.0167 7.99665 22.0166 6.26746 20.9501 5.20092L18.799 3.0499Z" fill="currentColor"></path>
+											<path d="M18.4764 11.537L12.463 5.52363L4.35808 13.6286C3.66361 14.3231 3.20349 15.2172 3.04202 16.1859L2.26021 20.8767C2.22039 21.1156 2.29841 21.3591 2.46968 21.5303C2.64095 21.7016 2.88439 21.7796 3.12331 21.7398L7.81417 20.958C8.78294 20.7965 9.67706 20.3364 10.3715 19.642L18.4764 11.537Z" fill="currentColor"></path>
+										</svg>
+									</div>
+								</motion.button>
+							)}
 						</motion.div>
 					</>
 				)}
