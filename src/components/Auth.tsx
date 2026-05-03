@@ -22,6 +22,8 @@ export const Auth = () => {
   const [username, setUsername] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [toast, setToast] = useState<{ message: string, type: ToastType, x?: number, y?: number } | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const navigate = useNavigate();
   const lastClickPos = useRef({ x: 0, y: 0 });
 
@@ -30,8 +32,54 @@ export const Auth = () => {
       lastClickPos.current = { x: e.clientX, y: e.clientY };
     };
     window.addEventListener('click', handleGlobalClick, true);
+
+    // Verifica se já está logado
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile) {
+          navigate(`/${profile.username}`);
+        }
+      }
+    };
+    checkUser();
+
     return () => window.removeEventListener('click', handleGlobalClick, true);
-  }, []);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!isSignUp || !username || username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+
+    const checkAvailability = async () => {
+      setCheckingUsername(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', username.toLowerCase())
+          .maybeSingle();
+
+        if (error) throw error;
+        setUsernameAvailable(!data);
+      } catch (err) {
+        console.error('Error checking username:', err);
+      } finally {
+        setCheckingUsername(false);
+      }
+    };
+
+    const debounce = setTimeout(checkAvailability, 500);
+    return () => clearTimeout(debounce);
+  }, [username, isSignUp]);
 
   useEffect(() => {
     // Limpa estilos que podem ter vindo do Canvas
@@ -90,7 +138,7 @@ export const Auth = () => {
             }
             throw profileError;
           }
-          showToast('Conta criada com sucesso!', 'success');
+          showToast('Conta criada com sucesso', 'success');
           
           setTimeout(() => navigate(`/${username.toLowerCase()}`), 1000);
         }
@@ -197,10 +245,35 @@ export const Auth = () => {
                     className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-sm transition-all"
                     placeholder="Nome de usuário"
                   />
-                  <div className="top-1/2 right-4 absolute opacity-0 group-focus-within:opacity-100 transition-opacity -translate-y-1/2 pointer-events-none">
+                  <div className="top-1/2 right-4 absolute flex items-center gap-2 -translate-y-1/2 pointer-events-none">
+                    {checkingUsername ? (
+                      <div className="border-2 border-black/10 border-t-black rounded-full w-3 h-3 animate-spin" />
+                    ) : username.length >= 3 && (
+                      usernameAvailable === true ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-green-500">
+                          <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      ) : usernameAvailable === false ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-red-500">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      ) : null
+                    )}
                     <span className="text-gray-300 text-xs">@</span>
                   </div>
                 </div>
+                <AnimatePresence>
+                  {usernameAvailable === false && (
+                    <motion.p 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-1 px-1 font-medium text-red-500 text-xs"
+                    >
+                      Este nome de usuário já está em uso
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
           </AnimatePresence>
@@ -226,10 +299,10 @@ export const Auth = () => {
 
           <motion.button
             layout
-            disabled={loading}
+            disabled={loading || (isSignUp && usernameAvailable === false)}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            className="relative bg-black disabled:opacity-50 shadow-black/10 shadow-lg mt-2 border border-black/5 rounded-xl w-full h-[56px] overflow-hidden font-bold text-white text-sm transition-all cursor-pointer"
+            className="relative bg-black disabled:bg-gray-400 disabled:opacity-50 shadow-black/10 shadow-lg mt-2 border border-black/5 rounded-xl w-full h-[56px] overflow-hidden font-bold text-white text-sm transition-all cursor-pointer"
           >
             <span className="z-10 relative">
               {loading ? (

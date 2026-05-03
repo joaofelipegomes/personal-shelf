@@ -6,8 +6,6 @@ export interface ShelfItem {
   id: string;
   type?: ItemType;
   titulo: string;
-  autor?: string,
-  data?: Date,
   categoria: Category;
   nota: number;
   imagemUrl?: string;
@@ -16,4 +14,5 @@ export interface ShelfItem {
   y: number;
   rotation: number;
   zIndex?: number;
+  likesCount?: number;
 }

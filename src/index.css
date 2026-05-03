@@ -22,15 +22,17 @@
 .animate-rainbow-slow {
   background: conic-gradient(
     from 0deg,
-    #ff5f00 0deg,
-    #ffd700 72deg,
-    #00e676 144deg,
-    #00b0ff 216deg,
-    #d500f9 288deg,
-    #ff5f00 360deg
+    #f0f0f0 0deg,
+    #F5F5DD 51deg,
+    #E1F3F7 102deg,
+    #FCE4EC 153deg,
+    #E8F5E9 204deg,
+    #F3E5F5 255deg,
+    #FFF3E0 306deg,
+    #f0f0f0 360deg
   );
   filter: blur(40px);
-  opacity: .5;
+  opacity: 1;
   animation: rotate-bg 15s linear infinite;
 }
 

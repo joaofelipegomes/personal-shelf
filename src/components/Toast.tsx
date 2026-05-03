@@ -9,9 +9,11 @@ interface ToastProps {
   onClose: () => void;
   x?: number;
   y?: number;
+  bgColor?: string;
+  textColor?: string;
 }
 
-export const Toast = ({ message, type, onClose, x, y }: ToastProps) => {
+export const Toast = ({ message, type, onClose, x, y, bgColor, textColor }: ToastProps) => {
   const toastRef = useRef<HTMLDivElement>(null);
   const [adjustedX, setAdjustedX] = useState(x || 0);
 
@@ -45,6 +47,9 @@ export const Toast = ({ message, type, onClose, x, y }: ToastProps) => {
 
   const isContextual = x !== undefined && y !== undefined;
 
+  const defaultBg = type === 'error' ? '#ffebee' : '#e8f5e9';
+  const defaultText = '#000000';
+
   return (
     <div 
       className="z-[10000] fixed pointer-events-none"
@@ -68,9 +73,13 @@ export const Toast = ({ message, type, onClose, x, y }: ToastProps) => {
           transition: { type: "spring", stiffness: 400, damping: 25 } 
         }}
         exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
-        className={`flex justify-center items-center bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-4 py-2 border border-black/[0.04] rounded-full min-w-[100px] pointer-events-auto`}
+        className="flex justify-center items-center shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-4 py-2 border border-black/[0.04] rounded-full min-w-[100px] pointer-events-auto"
+        style={{ 
+          backgroundColor: bgColor || defaultBg,
+          color: textColor || defaultText
+        }}
       >
-        <span className={`font-semibold text-sm tracking-tight whitespace-nowrap ${type === 'error' ? 'text-red-500' : 'text-black'}`}>
+        <span className="font-semibold text-sm tracking-tight whitespace-nowrap">
           {message}
         </span>
       </motion.div>

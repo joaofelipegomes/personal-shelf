@@ -169,7 +169,7 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, onDelete, initialData, bu
             <form onSubmit={handleSubmit} className="flex-1 space-y-8 p-6 pt-6 overflow-y-auto">
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-gray-400 text-xs font-bold uppercase">{formData.type === 'text' ? 'Seu texto' : 'Título'}</label>
+                  <label className="text-gray-400 text-xs font-bold uppercase">{formData.type === 'text' ? 'Texto' : 'Título'}</label>
                   {formData.type === 'text' && (
                     <span className={`text-[10px] font-bold ${formData.titulo.length >= 25 ? 'text-red-500' : 'text-gray-400'}`}>
                       {formData.titulo.length}/25
@@ -314,15 +314,23 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, onDelete, initialData, bu
               </div>
             </form>
 
-            <div className="flex flex-col gap-3 p-6 border-gray-100 border-t">
-              <button type="submit" onClick={handleSubmit} className="shadow-black/10 shadow-lg shadow-sm border border-black/5 py-4 rounded-xl w-full font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer" style={{ backgroundColor: buttonColor, color: buttonTextColor }}>
-                {isEditMode ? 'Salvar alterações' : 'Adicionar'}
-              </button>
+            <div className="flex gap-3 p-6 border-gray-100 border-t">
               {isEditMode && initialData && (
-                <button type="button" onClick={() => { if (onDelete) onDelete(initialData.id); }} className="bg-red-50 hover:bg-red-100 py-4 rounded-xl w-full font-bold text-red-500 text-sm active:scale-[0.98] transition-all cursor-pointer">
-                  Excluir item
+                <button 
+                  type="button" 
+                  onClick={() => { if (onDelete) onDelete(initialData.id); }} 
+                  className="bg-red-50 hover:bg-red-100 w-[52px] rounded-xl flex items-center justify-center text-red-500 active:scale-[0.98] transition-all cursor-pointer"
+                  title="Excluir item"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M19.5825 15.6564C19.5058 16.9096 19.4449 17.9041 19.3202 18.6984C19.1922 19.5131 18.9874 20.1915 18.5777 20.7849C18.2029 21.3278 17.7204 21.786 17.1608 22.1303C16.5491 22.5067 15.8661 22.6713 15.0531 22.75L8.92739 22.7499C8.1135 22.671 7.42972 22.5061 6.8176 22.129C6.25763 21.7841 5.77494 21.3251 5.40028 20.7813C4.99073 20.1869 4.78656 19.5075 4.65957 18.6917C4.53574 17.8962 4.47623 16.9003 4.40122 15.6453L3.75 4.75H20.25L19.5825 15.6564Z" fill="currentColor"></path>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M13.3473 1.28277C13.9124 1.33331 14.4435 1.50576 14.8996 1.84591C15.2369 2.09748 15.4712 2.40542 15.6714 2.73893C15.8569 3.04798 16.0437 3.4333 16.2555 3.8704L16.6823 4.7507H21C21.5523 4.7507 22 5.19842 22 5.7507C22 6.30299 21.5523 6.7507 21 6.7507C14.9998 6.7507 9.00019 6.7507 3 6.7507C2.44772 6.7507 2 6.30299 2 5.7507C2 5.19842 2.44772 4.7507 3 4.7507H7.40976L7.76556 3.97016C7.97212 3.51696 8.15403 3.11782 8.33676 2.79754C8.53387 2.45207 8.76721 2.13237 9.10861 1.87046C9.57032 1.51626 10.1121 1.33669 10.6899 1.28409C11.1249 1.24449 11.5634 1.24994 12 1.25064C12.5108 1.25146 12.97 1.24902 13.3473 1.28277ZM9.60776 4.7507H14.4597C14.233 4.28331 14.088 3.98707 13.9566 3.7682C13.7643 3.44787 13.5339 3.30745 13.1691 3.27482C12.9098 3.25163 12.5719 3.2507 12.0345 3.2507C11.4837 3.2507 11.137 3.25166 10.8712 3.27585C10.4971 3.30991 10.2639 3.45568 10.0739 3.78866C9.94941 4.00687 9.81387 4.29897 9.60776 4.7507Z" fill="currentColor"></path>
+                  </svg>
                 </button>
               )}
+              <button type="submit" onClick={handleSubmit} className="flex-1 shadow-black/10 shadow-lg shadow-sm border border-black/5 py-4 rounded-xl font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer" style={{ backgroundColor: buttonColor, color: buttonTextColor }}>
+                {isEditMode ? 'Salvar' : 'Adicionar'}
+              </button>
             </div>
           </motion.div>
         </>
