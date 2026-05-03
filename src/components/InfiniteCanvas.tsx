@@ -335,30 +335,16 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   useEffect(() => {
     if (!profileData?.id) return;
 
-    const channel = supabase
-      .channel(`shelf-changes-${profileData.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'shelf_items',
-          filter: `user_id=eq.${profileData.id}`
-        },
-        () => {
-          loadShelf(true);
-        }
-      )
-      .subscribe();
-
-    // Fallback: Polling a cada 10 segundos
-    const pollInterval = setInterval(() => {
-      loadShelf(true);
-    }, 10000);
+    const channel = new BroadcastChannel('shelf_updates');
+    
+    channel.onmessage = (event) => {
+      if (event.data.type === 'card_saved' && event.data.userId === profileData.id) {
+        loadShelf(true);
+      }
+    };
 
     return () => {
-      supabase.removeChannel(channel);
-      clearInterval(pollInterval);
+      channel.close();
     };
   }, [profileData?.id, loadShelf]);
 
@@ -601,6 +587,10 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 
       if (error) throw error;
       showToast('Salvo na sua prateleira!', 'success');
+      
+      const channel = new BroadcastChannel('shelf_updates');
+      channel.postMessage({ type: 'card_saved', userId: currentUserId });
+      channel.close();
     } catch (err: any) {
       console.error('Erro ao salvar:', err);
       showToast('Erro ao salvar item', 'error');
