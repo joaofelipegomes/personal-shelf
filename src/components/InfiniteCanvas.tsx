@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
 import { ConfirmModal } from './ConfirmModal';
+import { LoadingScreen } from './LoadingScreen';
 
 const CANVAS_SIZE = 5000;
 const ORIGIN_X = CANVAS_SIZE / 2;
@@ -86,6 +87,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   
   const [items, setItems] = useState<ShelfItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const isCurrentlyLoading = useRef(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -260,27 +262,58 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   }, [scale, x, y]);
 
   const loadShelf = useCallback(async (isBackground = false) => {
+    if (isCurrentlyLoading.current && !isBackground) return;
+    
+    console.log('Canvas: Loading shelf for:', username);
     if (!username) {
       if (!isBackground) setLoading(false);
       return;
     }
     
+    let timeout: any;
     if (!isBackground) {
+      isCurrentlyLoading.current = true;
       setLoading(true);
       setNotFound(false);
+      timeout = setTimeout(() => {
+        console.warn('Canvas: Load shelf timeout');
+        setLoading(false);
+        isCurrentlyLoading.current = false;
+      }, 7000); // Aumentei para 7s para dar mais margem
     }
 
     try {
-      const { data: profile, error: profileError } = await supabase.from('profiles').select('id, username, full_name, bg_color, avatar_url').eq('username', username.toLowerCase()).single();
+      console.log('Canvas: 1. Fetching profile for:', username);
+      
+      // Query with timeout
+      const profilePromise = supabase.from('profiles')
+        .select('id, username, full_name, bg_color, avatar_url')
+        .eq('username', username.toLowerCase())
+        .single();
+        
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile query timeout')), 5000)
+      );
+
+      const { data: profile, error: profileError } = await Promise.race([profilePromise, timeoutPromise]) as any;
+
       if (profileError || !profile) {
+        console.error('Canvas: Profile error:', profileError);
         if (!isBackground) {
           setNotFound(true);
           setLoading(false);
         }
         return;
       }
+      console.log('2. Profile found:', profile.id);
       setProfileData(profile);
-      const { data: shelfItems } = await supabase.from('shelf_items').select('*').eq('user_id', profile.id);
+      
+      console.log('Canvas: 3. Fetching shelf items...');
+      const itemsPromise = supabase.from('shelf_items').select('*').eq('user_id', profile.id);
+      const { data: shelfItems, error: shelfError } = await Promise.race([itemsPromise, timeoutPromise]) as any;
+      
+      if (shelfError) throw shelfError;
+
       if (shelfItems) {
         // Busca todas as curtidas para os itens desta prateleira
         const { data: allLikes } = await supabase
@@ -306,12 +339,15 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
         const maxZ = shelfItems.length > 0 ? Math.max(...shelfItems.map((i: any) => i.z_index || 1), 10) : 10;
         setMaxZIndex(maxZ);
       }
-      const { data: { user } } = await supabase.auth.getUser();
-      const uid = user?.id || null;
+      console.log('Fetching user session...');
+      const { data: { session: authSession } } = await supabase.auth.getSession();
+      const uid = authSession?.user?.id || null;
+      console.log('Auth check complete. User ID:', uid);
       setIsOwner(uid === profile.id);
       setCurrentUserId(uid);
 
       if (uid) {
+        console.log('Fetching user likes...');
         const { data: likes } = await supabase
           .from('likes')
           .select('item_id')
@@ -321,10 +357,15 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
         }
       }
     } catch (err) {
-      console.error('Erro ao carregar prateleira:', err);
+      console.error('Canvas: Erro ao carregar prateleira:', err);
       if (!isBackground) setNotFound(true);
     } finally {
-      if (!isBackground) setLoading(false);
+      console.log('Canvas: Finished loading shelf');
+      if (timeout) clearTimeout(timeout);
+      if (!isBackground) {
+        setLoading(false);
+        isCurrentlyLoading.current = false;
+      }
     }
   }, [username]);
 
@@ -453,8 +494,8 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     const containerHeight = containerRef.current?.clientHeight || window.innerHeight;
     const viewportCenterX = ORIGIN_X + (containerWidth / 2 - x.get() - ORIGIN_X) / currentScale;
     const viewportCenterY = ORIGIN_Y + (containerHeight / 2 - y.get() - ORIGIN_Y) / currentScale;
-    const cardWidth = isMobile ? 130 : 180;
-    const cardHeight = isMobile ? 180 : 250;
+    const cardWidth = 180;
+    const cardHeight = 250;
     
     const newItemData = { 
       user_id: currentUserId, 
@@ -489,12 +530,9 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
   };
 
   useEffect(() => {
-    if (isMobile) {
-      scale.set(0.7);
-    }
     x.set(-(ORIGIN_X - window.innerWidth / 2));
     y.set(-(ORIGIN_Y - window.innerHeight / 2));
-  }, [isMobile, x, y, scale]);
+  }, [x, y]);
 
   const displayName = profileData?.full_name ? profileData.full_name.split(' ')[0] : (profileData?.username || username);
   const currentBgColor = previewColor || profileData?.bg_color || '#f0f0f0';
@@ -511,15 +549,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
     }
   }, [currentBgColor]);
 
-  if (loading) return (
-    <div className="flex flex-col justify-center items-center w-full h-[100dvh] transition-colors duration-500" style={{ backgroundColor: currentBgColor }}>
-      <div className="flex gap-2">
-        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }} className="bg-black rounded-full w-3 h-3" />
-        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.15 }} className="bg-black rounded-full w-3 h-3" />
-        <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.3 }} className="bg-black rounded-full w-3 h-3" />
-      </div>
-    </div>
-  );
+  if (loading) return <LoadingScreen bgColor={currentBgColor} id="canvas_load" />;
   if (notFound) return <div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100dvh] text-center"><h2 className="font-bold text-black text-2xl">Prateleira não encontrada</h2><p className="mt-2 text-gray-500">O usuário @{username} ainda não criou sua prateleira.</p><button onClick={() => navigate('/')} className="bg-black mt-6 px-6 py-3 rounded-2xl font-bold text-white hover:scale-105 transition-transform cursor-pointer">Ir para o Início</button></div>;
 
   const handleToggleLike = async (item: ShelfItem) => {
@@ -678,6 +708,19 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
                     <path fillRule="evenodd" clipRule="evenodd" d="M15.8964 2.30109C15.3763 2.24998 14.7443 2.24999 13.9741 2.25H13.9741L10.0259 2.25H10.0259C9.25571 2.24999 8.62365 2.24998 8.10357 2.30109C7.55891 2.35461 7.07864 2.46829 6.62404 2.72984C6.16937 2.99144 5.82995 3.34942 5.51044 3.79326C5.20544 4.21693 4.88869 4.76293 4.50285 5.42801L2.54214 8.80762L2.54214 8.80762C2.15475 9.47532 1.83673 10.0235 1.61974 10.5002C1.39243 10.9996 1.25 11.4737 1.25 12C1.25 12.5263 1.39243 13.0004 1.61974 13.4998C1.83673 13.9766 2.15475 14.5247 2.54214 15.1924L4.50282 18.5719C4.88867 19.237 5.20543 19.7831 5.51044 20.2067C5.82995 20.6506 6.16937 21.0086 6.62404 21.2702C7.07864 21.5317 7.55891 21.6454 8.10357 21.6989C8.62366 21.75 9.25573 21.75 10.026 21.75L13.974 21.75C14.7443 21.75 15.3763 21.75 15.8964 21.6989C16.4411 21.6454 16.9214 21.5317 17.376 21.2702C17.8306 21.0086 18.17 20.6506 18.4896 20.2067C18.7945 19.7831 19.1113 19.2371 19.4971 18.5721L19.4971 18.572L21.4579 15.1924L21.4579 15.1923C21.8453 14.5246 22.1633 13.9765 22.3803 13.4998C22.6076 13.0004 22.75 12.5263 22.75 12C22.75 11.4737 22.6076 10.9996 22.3803 10.5002C22.1633 10.0235 21.8453 9.47535 21.4579 8.80767L19.4972 5.42801C19.1113 4.76293 18.7946 4.21694 18.4896 3.79326C18.1701 3.34942 17.8306 2.99144 17.376 2.72984C16.9214 2.46829 16.4411 2.35461 15.8964 2.30109ZM12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" fill="currentColor" />
                   </svg>
                   Ajustes
+                </button>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    showToast('Link copiado', 'success');
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 bg-white/80 hover:bg-gray-50 shadow-sm backdrop-blur-md px-4 py-2 border border-black/5 rounded-2xl font-bold text-black text-sm whitespace-nowrap active:scale-95 transition-all cursor-pointer"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12.75 4.69635C12.75 3.89755 13.3976 3.25 14.1963 3.25C14.5985 3.25 14.9826 3.41746 15.2562 3.71218L21.2094 10.1233C21.5569 10.4975 21.75 10.9893 21.75 11.5C21.75 12.0107 21.5569 12.5025 21.2094 12.8767L15.2562 19.2878C14.9826 19.5825 14.5985 19.75 14.1963 19.75C13.3976 19.75 12.75 19.1024 12.75 18.3037V15.2768C8.06858 15.6137 5.50309 19.0374 4.82196 20.0917C4.56902 20.4832 4.12931 20.75 3.6275 20.75C2.86673 20.75 2.25 20.1333 2.25 19.3725V18.5C2.25 12.6465 6.92842 7.8857 12.75 7.75285V4.69635Z" fill="currentColor" />
+                  </svg>
+                  Compartilhar
                 </button>
                 <button 
                   onClick={handleLogout}

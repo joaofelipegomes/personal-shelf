@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
+import { LoadingScreen } from './LoadingScreen';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const StarLogo = () => (
@@ -16,6 +17,7 @@ const StarLogo = () => (
 );
 
 export const Auth = () => {
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,25 +37,10 @@ export const Auth = () => {
     };
     window.addEventListener('click', handleGlobalClick, true);
 
-    // Verifica se já está logado
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (profile) {
-          navigate(`/${profile.username}`);
-        }
-      }
-    };
-    checkUser();
+    setIsCheckingSession(false);
 
     return () => window.removeEventListener('click', handleGlobalClick, true);
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     if (!isSignUp || !username || username.length < 3) {
@@ -95,6 +82,10 @@ export const Auth = () => {
       themeMeta.setAttribute('content', '#ffffff');
     }
   }, []);
+
+  if (isCheckingSession) {
+    return <LoadingScreen />;
+  }
 
   const showToast = (message: string, type: ToastType) => {
     setToast({ 

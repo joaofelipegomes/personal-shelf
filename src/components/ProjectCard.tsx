@@ -196,16 +196,16 @@ export const ProjectCard = ({
 				rotate: project.rotation,
 				zIndex: displayZIndex,
 			}}
-			className={`${project.type === "text" ? "w-fit min-w-[100px]" : "w-32.5 sm:w-37.5 md:w-45"} cursor-grab active:cursor-grabbing group card-draggable`}
+			className={`${project.type === "text" ? "w-fit min-w-[100px]" : "w-45"} cursor-grab active:cursor-grabbing group card-draggable`}
 		>
 			{project.type === "text" ? (
 				<div 
 					ref={mediaRef}
-					className="relative flex flex-col justify-center items-center px-8 py-4 text-center transition-all duration-300 group-hover:scale-110"
+					className="relative flex flex-col justify-center items-center px-3 py-3 text-center transition-all duration-300 group-hover:scale-110"
 				>
 
 					<h3
-						className={`font-bold text-xl md:text-3xl text-black tracking-tighter leading-none whitespace-nowrap drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)] ${
+						className={`font-bold text-3xl text-black tracking-tighter leading-none whitespace-nowrap drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)] ${
 							project.fontFamily === "serif"
 								? "font-[Cormorant_Garamond]"
 								: project.fontFamily === "mono"
@@ -261,8 +261,8 @@ export const ProjectCard = ({
 							animate={{ 
 								opacity: 1, 
 								scale: 1, 
-								x: corner === 'tr' || corner === 'br' ? 24 : -24,
-								y: corner === 'tr' || corner === 'tl' ? -12 : 12 
+								x: corner === 'tr' || corner === 'br' ? 12 : -12,
+								y: corner === 'tr' || corner === 'tl' ? -6 : 6 
 							}}
 							exit={{ opacity: 0, scale: 0.5, x: 0, y: 0 }}
 							transition={{ type: "spring", damping: 20, stiffness: 300 }}
