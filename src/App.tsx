@@ -53,7 +53,7 @@ function App() {
           .single();
         
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+          setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
         );
 
         const { data: profile } = await Promise.race([profilePromise, timeoutPromise]) as any;
@@ -69,7 +69,7 @@ function App() {
       const timeout = setTimeout(() => {
         console.warn('App: initAuth safety timeout triggered');
         setLoading(false);
-      }, 5000);
+      }, 10000);
 
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
