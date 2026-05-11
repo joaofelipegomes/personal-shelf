@@ -193,10 +193,7 @@ export const Auth = () => {
 	};
 
 	return (
-		<div 
-			className="absolute top-0 left-0 right-0 flex justify-center items-center p-6 w-full"
-			style={{ bottom: '-100px', paddingBottom: '100px' }}
-		>
+		<div className="fixed inset-0 flex justify-center items-center p-6 w-full">
 			{/* Background Animado - Aumentado para garantir cobertura total */}
 			<div className="top-1/2 left-1/2 -z-10 absolute w-[200vmax] h-[200vmax] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
 				<div className="w-full h-full animate-rainbow-slow" />
