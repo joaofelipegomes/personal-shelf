@@ -13,6 +13,7 @@ import type { ItemType, ShelfItem } from "../types/item";
 import { AddItemModal } from "./AddItemModal";
 import { ConfirmModal } from "./ConfirmModal";
 import { LoadingScreen } from "./LoadingScreen";
+import { PasswordModal } from "./PasswordModal";
 import { PlusIcon } from "./PlusIcon";
 import { ProjectCard } from "./ProjectCard";
 import { SettingsModal } from "./SettingsModal";
@@ -116,6 +117,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isAccountDeleteModalOpen, setIsAccountDeleteModalOpen] =
 		useState(false);
+	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 	const [maxZIndex, setMaxZIndex] = useState(10);
 	const [hasInteracted, setHasInteracted] = useState(() => {
 		return localStorage.getItem("shelf_has_interacted") === "true";
@@ -160,6 +162,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 		null,
 	);
 	const [isFrameMode, setIsFrameMode] = useState(false);
+	const [isPinching, setIsPinching] = useState(false);
 	const lastClickPos = useRef({ x: 0, y: 0 });
 
 	useEffect(() => {
@@ -255,6 +258,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 
 		const handleTouchStart = (e: TouchEvent) => {
 			if (e.touches.length === 2) {
+				setIsPinching(true);
 				lastTouchDistance.current = getDistance(e.touches);
 			}
 		};
@@ -282,8 +286,11 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 			}
 		};
 
-		const handleTouchEnd = () => {
-			lastTouchDistance.current = null;
+		const handleTouchEnd = (e: TouchEvent) => {
+			if (e.touches.length < 2) {
+				setIsPinching(false);
+				lastTouchDistance.current = null;
+			}
 		};
 
 		window.addEventListener("wheel", handleWheel, { passive: false });
@@ -322,30 +329,28 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 			}
 
 			try {
-				console.log("Canvas: 1. Fetching user session...");
-				const {
-					data: { session: authSession },
-				} = await supabase.auth.getSession();
-				const uid = authSession?.user?.id || null;
-				setCurrentUserId(uid);
+				console.log("Canvas: 1. Fetching session and profile...");
+				
+				const timeoutPromise = new Promise((_, reject) =>
+					setTimeout(() => reject(new Error("Timeout")), 10000),
+				);
 
-				console.log("Canvas: 2. Fetching profile for:", username);
-
-				// Query with timeout
 				const profilePromise = supabase
 					.from("profiles")
 					.select("id, username, full_name, bg_color, avatar_url")
 					.eq("username", username.toLowerCase())
 					.single();
 
-				const timeoutPromise = new Promise((_, reject) =>
-					setTimeout(() => reject(new Error("Profile query timeout")), 10000),
-				);
+				const [sessionResult, profileResult] = await Promise.all([
+					supabase.auth.getSession(),
+					Promise.race([profilePromise, timeoutPromise]) as Promise<any>
+				]);
 
-				const { data: profile, error: profileError } = (await Promise.race([
-					profilePromise,
-					timeoutPromise,
-				])) as any;
+				const authSession = sessionResult.data?.session;
+				const uid = authSession?.user?.id || null;
+				setCurrentUserId(uid);
+
+				const { data: profile, error: profileError } = profileResult;
 
 				if (profileError || !profile) {
 					console.error("Canvas: Profile error:", profileError);
@@ -355,20 +360,20 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 					}
 					return;
 				}
-				console.log("2. Profile found:", profile.id);
+				
+				console.log("Canvas: Profile found:", profile.id);
 				setProfileData(profile);
 
-				console.log("Canvas: 3. Fetching shelf items...");
-				const itemsPromise = supabase
+				// 2. Fetch items (sequencial ao perfil mas rápido)
+				console.log("Canvas: 2. Fetching items...");
+				const { data: shelfItems, error: shelfError } = await supabase
 					.from("shelf_items")
 					.select("*")
 					.eq("user_id", profile.id);
-				const { data: shelfItems, error: shelfError } = (await Promise.race([
-					itemsPromise,
-					timeoutPromise,
-				])) as any;
-
-				if (shelfError) throw shelfError;
+				
+				if (shelfError) {
+					console.error("Canvas: Shelf items error:", shelfError);
+				}
 
 				if (shelfItems) {
 					// Busca todas as curtidas para os itens desta prateleira
@@ -401,7 +406,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 							: 10;
 					setMaxZIndex(maxZ);
 				}
-				
+
 				console.log("Auth check complete. User ID:", uid);
 				setIsOwner(uid === profile.id);
 
@@ -665,7 +670,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 	}, [currentBgColor]);
 
 	if (loading)
-		return <LoadingScreen bgColor={currentBgColor} id="canvas_load" />;
+		return <LoadingScreen bgColor={currentBgColor} />;
 	if (notFound)
 		return (
 			<div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100dvh] text-center">
@@ -766,7 +771,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 	return (
 		<div
 			ref={containerRef}
-			className="relative w-full h-[100dvh] overflow-hidden transition-colors duration-500 touch-none"
+			className="fixed inset-0 overflow-hidden transition-colors duration-500 touch-none"
 			style={{ backgroundColor: currentBgColor }}
 		>
 			<AnimatePresence>
@@ -820,11 +825,18 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 					onUpdate={updateProfile}
 					onPreviewColorChange={setPreviewColor}
 					showToast={showToast}
+					onChangePassword={() => setIsPasswordModalOpen(true)}
 				/>
 			)}
 
+			<PasswordModal
+				isOpen={isPasswordModalOpen}
+				onClose={() => setIsPasswordModalOpen(false)}
+				showToast={showToast}
+			/>
+
 			{/* Barra de Ferramentas Superior */}
-			<div className="top-6 right-6 left-6 z-50 fixed flex justify-between items-start pointer-events-none main-ui-layer">
+			<div className="top-[max(1.5rem,env(safe-area-inset-top))] right-[max(1.5rem,env(safe-area-inset-right))] left-[max(1.5rem,env(safe-area-inset-left))] z-50 fixed flex justify-between items-start pointer-events-none main-ui-layer">
 				<AnimatePresence>
 					{!isFrameMode && (
 						<>
@@ -898,20 +910,48 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 												</svg>
 												Ajustes
 											</button>
+
+											<button
+												onClick={() => {
+													setIsPasswordModalOpen(true);
+													setIsMenuOpen(false);
+												}}
+												className="flex items-center gap-2 bg-white/80 hover:bg-gray-50 shadow-sm backdrop-blur-md px-4 py-2 border border-black/5 rounded-2xl font-bold text-black text-sm whitespace-nowrap active:scale-95 transition-all cursor-pointer"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+												>
+													<path
+														fillRule="evenodd"
+														clipRule="evenodd"
+														d="M12 3.25C10.067 3.25 8.49999 4.817 8.49999 6.75V8.31016C9.61772 8.27048 10.7654 8.25 12 8.25C13.2346 8.25 14.3823 8.27048 15.5 8.31016V6.75C15.5 4.817 13.933 3.25 12 3.25ZM6.49999 6.75V8.52712C4.93232 9.00686 3.74924 10.3861 3.52451 12.0552C3.37635 13.1556 3.24999 14.3118 3.24999 15.5C3.24999 16.6882 3.37636 17.8444 3.52451 18.9448C3.79608 20.9618 5.46715 22.5555 7.52521 22.6501C8.95364 22.7158 10.4042 22.75 12 22.75C13.5958 22.75 15.0464 22.7158 16.4748 22.6501C18.5328 22.5555 20.2039 20.9618 20.4755 18.9448C20.6236 17.8444 20.75 16.6882 20.75 15.5C20.75 14.3118 20.6236 13.1556 20.4755 12.0552C20.2507 10.3861 19.0677 9.00686 17.5 8.52712V6.75C17.5 3.71243 15.0376 1.25 12 1.25C8.96243 1.25 6.49999 3.71243 6.49999 6.75ZM13 14.5C13 13.9477 12.5523 13.5 12 13.5C11.4477 13.5 11 13.9477 11 14.5V16.5C11 17.0523 11.4477 17.5 12 17.5C12.5523 17.5 13 17.0523 13 16.5V14.5Z"
+														fill="currentColor"
+													></path>
+												</svg>
+												Senha
+											</button>
 											<button
 												onClick={async () => {
 													const url = window.location.href;
 													const shareData = {
 														title: `Prateleira de ${profileData?.full_name || username}`,
-														text: 'Dê uma olhada na minha prateleira pessoal!',
-														url: url
+														text: "Dê uma olhada na minha prateleira pessoal!",
+														url: url,
 													};
-													
-													if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+
+													if (
+														navigator.share &&
+														navigator.canShare &&
+														navigator.canShare(shareData)
+													) {
 														try {
 															await navigator.share(shareData);
 														} catch (err) {
-															console.error('Erro ao compartilhar', err);
+															console.error("Erro ao compartilhar", err);
 														}
 													} else {
 														navigator.clipboard.writeText(url);
@@ -932,7 +972,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 														fill="currentColor"
 													/>
 												</svg>
-												Enviar
+												Compartilhar
 											</button>
 											<button
 												onClick={handleLogout}
@@ -1009,6 +1049,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 					if (
 						!isModalOpen &&
 						!isSettingsOpen &&
+						!isPinching &&
 						!(e.target as HTMLElement).closest(".card-draggable") &&
 						!(e.target as HTMLElement).closest("button")
 					) {
@@ -1090,13 +1131,17 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 							onPositionChange={handlePositionChange}
 							zIndex={item.zIndex || 1}
 							onDragStart={() => bringToFront(item.id)}
-							onEdit={isOwner ? handleEditItem : undefined}
+							onEdit={isOwner && !isFrameMode ? handleEditItem : undefined}
 							isOwner={isOwner}
 							canvasScale={scale.get()}
-							isBlocked={isModalOpen || isSettingsOpen}
+							isBlocked={isModalOpen || isSettingsOpen || isFrameMode}
 							onPointerDown={() => setInteractionMenuId(null)}
-							onDoubleClick={handleToggleLike}
-							onLongPress={(item) => setInteractionMenuId(item.id)}
+							onDoubleClick={!isFrameMode ? handleToggleLike : undefined}
+							onLongPress={
+								!isFrameMode
+									? (item) => setInteractionMenuId(item.id)
+									: undefined
+							}
 							isLiked={likedItems.has(item.id)}
 							isMenuOpen={interactionMenuId === item.id}
 							isDimmed={
@@ -1109,7 +1154,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 				</motion.div>
 			</motion.div>
 
-			<div className="left-6 bottom-8 z-[1000] fixed flex flex-col items-start gap-3 pointer-events-none main-ui-layer">
+			<div className="left-[max(1.5rem,env(safe-area-inset-left))] bottom-[max(2rem,env(safe-area-inset-bottom))] z-[1000] fixed flex flex-col items-start gap-3 pointer-events-none main-ui-layer">
 				<AnimatePresence>
 					{!isFrameMode && (
 						<motion.div
@@ -1119,29 +1164,10 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 							transition={{ type: "spring", stiffness: 300, damping: 25 }}
 							className="flex flex-col items-start gap-3"
 						>
-							<AnimatePresence>
-								{zoomDisplay !== 100 && (
-									<motion.button
-										initial={{ opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0, y: 10 }}
-										onClick={() => {
-											animate(scale, 1, {
-												type: "spring",
-												bounce: 0,
-												duration: 0.5,
-											});
-										}}
-										className="bg-white/80 hover:bg-white shadow-sm backdrop-blur-md px-3 py-1.5 border border-black/5 rounded-full font-bold text-[10px] text-black/60 hover:text-black active:scale-90 transition-all cursor-pointer pointer-events-auto select-none"
-									>
-										{zoomDisplay}%
-									</motion.button>
-								)}
-							</AnimatePresence>
-
-							<AnimatePresence>
+							<AnimatePresence mode="popLayout">
 								{isMenuOpen && isOwner && (
 									<motion.div
+										layout
 										initial={{ opacity: 0, x: -20 }}
 										animate={{ opacity: 1, x: 0 }}
 										exit={{ opacity: 0, x: -20 }}
@@ -1174,12 +1200,33 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 									</motion.div>
 								)}
 							</AnimatePresence>
+
+							<AnimatePresence mode="popLayout">
+								{zoomDisplay !== 100 && (
+									<motion.button
+										layout
+										initial={{ opacity: 0, scale: 0.8 }}
+										animate={{ opacity: 1, scale: 1 }}
+										exit={{ opacity: 0, scale: 0.8 }}
+										onClick={() => {
+											animate(scale, 1, {
+												type: "spring",
+												bounce: 0,
+												duration: 0.5,
+											});
+										}}
+										className="bg-white/80 hover:bg-white shadow-sm backdrop-blur-md px-3 py-1.5 border border-black/5 rounded-full font-bold text-[10px] text-black/60 hover:text-black active:scale-90 transition-all cursor-pointer pointer-events-auto select-none"
+									>
+										{zoomDisplay}%
+									</motion.button>
+								)}
+							</AnimatePresence>
 						</motion.div>
 					)}
 				</AnimatePresence>
 			</div>
 
-			<div className="right-8 bottom-8 z-[1000] fixed flex flex-col items-end gap-3 main-ui-layer pointer-events-none">
+			<div className="right-[max(2rem,env(safe-area-inset-right))] bottom-[max(2rem,env(safe-area-inset-bottom))] z-[1000] fixed flex flex-col items-end gap-3 main-ui-layer pointer-events-none">
 				<AnimatePresence>
 					{!isFrameMode && (
 						<motion.div

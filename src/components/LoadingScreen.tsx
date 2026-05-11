@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export const LoadingScreen = ({ bgColor = 'white', id }: { bgColor?: string, id?: string }) => {
+export const LoadingScreen = ({ bgColor = 'white' }: { bgColor?: string }) => {
   return (
     <div 
       className="flex flex-col justify-center items-center w-full h-[100dvh] transition-colors duration-500" 
@@ -24,7 +24,6 @@ export const LoadingScreen = ({ bgColor = 'white', id }: { bgColor?: string, id?
             className="bg-black rounded-full w-3 h-3" 
           />
         </div>
-        {id && <span className="text-[10px] text-black/20 uppercase tracking-widest font-medium">{id}</span>}
       </div>
     </div>
   );

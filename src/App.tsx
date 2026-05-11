@@ -66,17 +66,18 @@ function App() {
 
     const initAuth = async () => {
       console.log('App: Starting initAuth');
-      const timeout = setTimeout(() => {
-        console.warn('App: initAuth safety timeout triggered');
-        setLoading(false);
-      }, 10000);
-
+      
       try {
+        // 1. Get session (fastest way to check if logged in)
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         setSession(initialSession);
         
-        if (initialSession?.user) {
-          console.log('App: User found in session, fetching profile');
+        // 2. Decide if we need to fetch the profile
+        // Only fetch profile if we are at root/auth and need to redirect to the user's shelf
+        const isRootPath = window.location.pathname === '/' || window.location.pathname === '/auth';
+        
+        if (initialSession?.user && isRootPath) {
+          console.log('App: User found in session and on root path, fetching profile for redirection');
           const uname = await fetchProfile(initialSession.user.id);
           setUsername(uname);
         }
@@ -84,7 +85,6 @@ function App() {
         console.error('App: Auth initialization error:', error);
       } finally {
         console.log('App: initAuth finished');
-        clearTimeout(timeout);
         setLoading(false);
       }
     };
@@ -115,7 +115,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <LoadingScreen id="auth_check" />;
+    return <LoadingScreen />;
   }
 
   return (

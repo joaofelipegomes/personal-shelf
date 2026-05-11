@@ -71,6 +71,7 @@ interface SettingsModalProps {
   onUpdate: (newData: { username: string, full_name: string, bg_color: string, avatar_url: string | null }) => void;
   onPreviewColorChange?: (color: string) => void;
   showToast: (message: string, type: ToastType) => void;
+  onChangePassword: () => void;
 }
 
 const PASTEL_COLORS = [
@@ -83,7 +84,7 @@ const PASTEL_COLORS = [
   { name: 'Pêssego', value: '#fff3e0' },
 ];
 
-export const SettingsModal = ({ isOpen, onClose, currentProfile, onUpdate, onPreviewColorChange, showToast }: SettingsModalProps) => {
+export const SettingsModal = ({ isOpen, onClose, currentProfile, onUpdate, onPreviewColorChange, showToast, onChangePassword }: SettingsModalProps) => {
   const [formData, setFormData] = useState<{username: string, full_name: string, bg_color: string, avatar_url: string | null}>({
     username: currentProfile.username,
     full_name: currentProfile.full_name || '',
@@ -233,27 +234,33 @@ export const SettingsModal = ({ isOpen, onClose, currentProfile, onUpdate, onPre
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="z-[5000] fixed inset-0 cursor-default"
+            className="z-[5000] fixed inset-0 bg-black/40 cursor-default"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="top-1/2 left-1/2 z-[5001] fixed bg-white shadow-2xl shadow-sm border border-black/5 p-8 rounded-3xl w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.1}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="bottom-[6px] sm:bottom-0 left-1/2 -translate-x-1/2 z-[5001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[40px] sm:rounded-b-none w-[calc(100%-12px)] sm:w-[500px] max-h-[92vh] sm:max-h-[95vh] overflow-hidden"
           >
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-bold text-black text-2xl">Ajustes</h2>
-              <button 
-                onClick={onClose}
-                className="hover:bg-gray-100 p-2 rounded-full text-gray-500 transition-colors cursor-pointer"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M17.293 5.29295C17.6835 4.90243 18.3165 4.90243 18.707 5.29295C19.0976 5.68348 19.0976 6.31649 18.707 6.70702L13.4131 12L18.7061 17.293L18.7754 17.3691C19.0954 17.7619 19.0721 18.341 18.7061 18.707C18.3399 19.0731 17.7609 19.0958 17.3682 18.7754L17.292 18.707L11.999 13.414L6.70802 18.706C6.3175 19.0966 5.68449 19.0965 5.29396 18.706C4.90344 18.3155 4.90344 17.6825 5.29396 17.292L10.585 12L5.29298 6.70799L5.22462 6.63182C4.90423 6.23907 4.92691 5.66007 5.29298 5.29393C5.65897 4.92794 6.23811 4.9046 6.63087 5.22459L6.70705 5.29393L11.999 10.5859L17.293 5.29295Z" fill="currentColor"/>
-                </svg>
-              </button>
+            {/* Apple Sheet Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="bg-gray-200 rounded-full w-12 h-1.5" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex justify-between items-center p-6 pt-2 mb-2">
+              <h2 className="font-bold text-black text-2xl">Ajustes</h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6 px-8 pb-8">
               <div className="flex flex-col items-center gap-3 mb-6">
                 <div className="relative group">
                   {formData.avatar_url ? (
@@ -354,6 +361,20 @@ export const SettingsModal = ({ isOpen, onClose, currentProfile, onUpdate, onPre
                     />
                   ))}
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <span className="text-sm font-bold text-black px-1">Segurança</span>
+                <button
+                  type="button"
+                  onClick={onChangePassword}
+                  className="flex items-center gap-2 w-full p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl border border-gray-100 transition-all text-sm font-medium text-gray-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-400">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M12 3.25C10.067 3.25 8.49999 4.817 8.49999 6.75V8.31016C9.61772 8.27048 10.7654 8.25 12 8.25C13.2346 8.25 14.3823 8.27048 15.5 8.31016V6.75C15.5 4.817 13.933 3.25 12 3.25ZM6.49999 6.75V8.52712C4.93232 9.00686 3.74924 10.3861 3.52451 12.0552C3.37635 13.1556 3.24999 14.3118 3.24999 15.5C3.24999 16.6882 3.37636 17.8444 3.52451 18.9448C3.79608 20.9618 5.46715 22.5555 7.52521 22.6501C8.95364 22.7158 10.4042 22.75 12 22.75C13.5958 22.75 15.0464 22.7158 16.4748 22.6501C18.5328 22.5555 20.2039 20.9618 20.4755 18.9448C20.6236 17.8444 20.75 16.6882 20.75 15.5C20.75 14.3118 20.6236 13.1556 20.4755 12.0552C20.2507 10.3861 19.0677 9.00686 17.5 8.52712V6.75C17.5 3.71243 13.933 1.25 12 1.25V3.25Z" fill="currentColor"></path>
+                  </svg>
+                  Alterar senha da conta
+                </button>
               </div>
 
               <button

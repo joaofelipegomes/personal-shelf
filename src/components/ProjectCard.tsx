@@ -225,7 +225,7 @@ export const ProjectCard = ({
 						<img
 							src={project.imagemUrl}
 							alt={project.titulo}
-							className="block shadow-lg rounded-sm w-full h-auto pointer-events-none transition-all duration-300 group-hover:shadow-2xl group-hover:scale-[1.02]"
+							className="block shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-sm w-full h-auto pointer-events-none transition-all duration-300 group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.15)] group-hover:scale-[1.02]"
 						/>
 					</div>
 

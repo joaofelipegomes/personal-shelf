@@ -13,20 +13,34 @@ export const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }: Co
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay - Invisible but clickable */}
+          {/* Overlay - Darkened backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onCancel}
-            className="fixed inset-0 z-[4000] cursor-default"
+            className="fixed inset-0 z-[4000] bg-black/40 cursor-default"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-3xl p-8 shadow-2xl shadow-sm border border-black/5 z-[4001] text-center"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.1}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onCancel();
+              }
+            }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed bottom-[6px] sm:bottom-0 left-1/2 -translate-x-1/2 w-[calc(100%-12px)] sm:w-[450px] bg-white rounded-[40px] sm:rounded-b-none p-8 pt-2 shadow-2xl border border-black/5 z-[4001] text-center"
           >
+            {/* Apple Sheet Handle */}
+            <div className="flex justify-center pt-3 pb-6">
+              <div className="bg-gray-200 rounded-full w-12 h-1.5" />
+            </div>
+
             <h3 className="text-lg font-bold text-black">{title}</h3>
             <p className="text-gray-500 mt-2 text-sm leading-relaxed">{message}</p>
             

@@ -127,16 +127,29 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, onDelete, initialData, bu
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="z-[2000] fixed inset-0 cursor-default"
+            className="z-[2000] fixed inset-0 bg-black/40 cursor-default"
           />
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.1}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                handleClose();
+              }
+            }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="top-4 right-4 bottom-4 z-[2001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[32px] w-[calc(100%-32px)] sm:w-[400px] overflow-hidden"
+            className="bottom-[6px] sm:bottom-0 left-1/2 -translate-x-1/2 z-[2001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[40px] sm:rounded-b-none w-[calc(100%-12px)] sm:w-[500px] max-h-[92vh] sm:max-h-[95vh] overflow-hidden"
           >
-            <div className="flex justify-between items-center p-6 pb-0">
+            {/* Apple Sheet Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="bg-gray-200 rounded-full w-12 h-1.5" />
+            </div>
+
+            <div className="flex justify-between items-center p-6 pt-2 pb-0">
               {!isEditMode ? (
                 <div className="flex bg-gray-100 p-1 rounded-2xl w-fit">
                   <button
@@ -156,14 +169,6 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, onDelete, initialData, bu
                 <span className="font-bold text-black text-sm uppercase tracking-tight">Editar {formData.type === 'image' ? 'Capa' : 'Texto'}</span>
               )}
 
-              <button 
-                onClick={handleClose}
-                className="hover:bg-gray-100 p-2 rounded-full text-gray-500 transition-colors cursor-pointer"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M17.293 5.29295C17.6835 4.90243 18.3165 4.90243 18.707 5.29295C19.0976 5.68348 19.0976 6.31649 18.707 6.70702L13.4131 12L18.7061 17.293L18.7754 17.3691C19.0954 17.7619 19.0721 18.341 18.7061 18.707C18.3399 19.0731 17.7609 19.0958 17.3682 18.7754L17.292 18.707L11.999 13.414L6.70802 18.706C6.3175 19.0966 5.68449 19.0965 5.29396 18.706C4.90344 18.3155 4.90344 17.6825 5.29396 17.292L10.585 12L5.29298 6.70799L5.22462 6.63182C4.90423 6.23907 4.92691 5.66007 5.29298 5.29393C5.65897 4.92794 6.23811 4.9046 6.63087 5.22459L6.70705 5.29393L11.999 10.5859L17.293 5.29295Z" fill="currentColor"/>
-                </svg>
-              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 space-y-8 p-6 pt-6 overflow-y-auto">

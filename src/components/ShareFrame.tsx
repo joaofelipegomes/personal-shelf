@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { toCanvas } from "html-to-image";
+import { domToCanvas } from "modern-screenshot";
 import { useEffect, useRef, useState } from "react";
 
 interface ShareFrameProps {
@@ -25,24 +25,36 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 		if (!containerRef.current || !frameRef.current) return;
 
 		setIsCapturing(true);
+		document.body.classList.add("hide-shadows-for-capture");
 		try {
-			const canvas = await toCanvas(containerRef.current, {
-				pixelRatio: 2,
-				filter: (node: any) => {
-					if (node.classList?.contains("share-frame-overlay")) return false;
-					if (node.classList?.contains("z-[1000]")) return false;
-					if (node.classList?.contains("main-ui-layer")) return false;
-					return true;
-				},
-			});
-
+			const SCALE = 4;
 			const containerRect = containerRef.current.getBoundingClientRect();
 			const frameRect = frameRef.current.getBoundingClientRect();
 
-			const x = (frameRect.left - containerRect.left) * 2;
-			const y = (frameRect.top - containerRect.top) * 2;
-			const width = frameRect.width * 2;
-			const height = frameRect.height * 2;
+			const canvas = await domToCanvas(containerRef.current, {
+				scale: SCALE,
+				width: containerRect.width,
+				height: containerRect.height,
+				style: {
+					width: `${containerRect.width}px`,
+					height: `${containerRect.height}px`,
+				},
+				filter: (node: Node) => {
+					const el = node as Element;
+					if (el.classList?.contains("share-frame-overlay")) return false;
+					if (el.classList?.contains("z-[1000]")) return false;
+					if (el.classList?.contains("main-ui-layer")) return false;
+					return true;
+				},
+				fetch: {
+					bypassingCache: true,
+				},
+			});
+
+			const x = (frameRect.left - containerRect.left) * SCALE;
+			const y = (frameRect.top - containerRect.top) * SCALE;
+			const width = frameRect.width * SCALE;
+			const height = frameRect.height * SCALE;
 
 			const cropCanvas = document.createElement("canvas");
 			cropCanvas.width = width;
@@ -50,7 +62,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 			const ctx = cropCanvas.getContext("2d");
 
 			if (ctx) {
-				const radius = 24 * 2;
+				const radius = 6 * SCALE;
 				ctx.beginPath();
 				ctx.moveTo(radius, 0);
 				ctx.lineTo(width - radius, 0);
@@ -82,14 +94,19 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 								await navigator.share({
 									files: [file],
 									title: "Minha Prateleira",
-									text: "Olha só minha coleção no Personal Shelf!",
+									text: "Olha só a minha coleção na Prateleira!",
 								});
-							} catch (err) {
+								onClose();
+							} catch (err: any) {
 								console.error("Erro ao compartilhar:", err);
-								downloadFile(file);
+								if (err.name !== "AbortError") {
+									downloadFile(file);
+								}
+								onClose();
 							}
 						} else {
 							downloadFile(file);
+							onClose();
 						}
 					},
 					"image/png",
@@ -99,6 +116,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 		} catch (err) {
 			console.error("Erro na captura:", err);
 		} finally {
+			document.body.classList.remove("hide-shadows-for-capture");
 			setIsCapturing(false);
 		}
 	};
@@ -181,7 +199,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 							height: dims.height,
 						}}
 						transition={{ type: "spring", damping: 25, stiffness: 300 }}
-						className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 shadow-[0_0_0_10000px_rgba(0,0,0,0.6)] rounded-2xl pointer-events-none"
+						className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 shadow-[0_0_0_10000px_rgba(0,0,0,0.6)] rounded-md pointer-events-none"
 					/>
 
 					{/* The Frame */}
@@ -195,9 +213,9 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 							height: dims.height,
 						}}
 						transition={{ type: "spring", damping: 25, stiffness: 300 }}
-						className="relative z-10 border-2 border-white/50 rounded-2xl"
+						className="relative z-10 border-2 border-white/50 rounded-md"
 					>
-						<div className="absolute inset-0 border border-white/20 rounded-3xl pointer-events-none" />
+						<div className="absolute inset-0 border border-white/20 rounded-lg pointer-events-none" />
 
 						{/* Controls centered inside the frame */}
 						<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-5 pointer-events-auto w-[90%] max-w-[300px]">
@@ -220,7 +238,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 							<button
 								onClick={handleCapture}
 								disabled={isCapturing}
-								className="cursor-pointer px-20 py-3.5 bg-white text-black rounded-2xl font-bold text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-2"
+								className="cursor-pointer px-16 py-3.5 bg-white text-black rounded-2xl font-bold text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap flex items-center justify-center gap-2"
 							>
 								<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
 									<path
@@ -230,7 +248,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 										fill="currentColor"
 									/>
 								</svg>
-								{isCapturing ? "Capturando..." : "Capturar"}
+								Capturar
 							</button>
 						</div>
 					</motion.div>

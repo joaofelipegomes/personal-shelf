@@ -11,7 +11,7 @@ const StarLogo = () => (
     <img 
       src="/prateleira.png" 
       alt="Logo Prateleira" 
-      className="drop-shadow-xl w-20 h-20 object-contain"
+      className="w-20 h-20 object-contain shadow-none drop-shadow-none"
     />
   </div>
 );
