@@ -48,7 +48,8 @@ html {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  /* Hack documentado: forçar o WebKit a recalcular a borda inferior */
+  min-height: calc(100% + env(safe-area-inset-top));
   background-color: var(--color-canvas-bg);
 }
 
@@ -56,10 +57,10 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  background: inherit;
+  min-height: 100%;
+  background-color: var(--color-canvas-bg);
   overscroll-behavior: none;
-  overflow: hidden;
+  /* NÃO usar overflow:hidden aqui — impede o iOS de pintar a safe area */
 }
 
 #root {

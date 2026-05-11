@@ -16,8 +16,8 @@ export default defineConfig({
         name: 'Prateleira',
         short_name: 'Prateleira',
         description: 'Sua prateleira infinita.',
-        theme_color: '#f8f8f8',
-        background_color: '#f8f8f8',
+        theme_color: '#f0f0f0',
+        background_color: '#f0f0f0',
         display: 'standalone',
         icons: [
           {
