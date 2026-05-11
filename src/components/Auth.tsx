@@ -237,7 +237,7 @@ export const Auth = () => {
                     type="text"
                     value={username}
                     onChange={e => setUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
-                    className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-sm transition-all"
+                    className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-base transition-all"
                     placeholder="Nome de usuário"
                   />
                   <div className="top-1/2 right-4 absolute flex items-center gap-2 -translate-y-1/2 pointer-events-none">
@@ -287,7 +287,7 @@ export const Auth = () => {
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-sm transition-all"
+              className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-base transition-all"
               placeholder="Senha"
             />
           </div>
