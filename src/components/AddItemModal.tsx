@@ -142,7 +142,7 @@ export const AddItemModal = ({ isOpen, onClose, onAdd, onDelete, initialData, bu
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="bottom-[max(0.75rem,env(safe-area-inset-bottom))] sm:bottom-0 left-1/2 -translate-x-1/2 z-[2001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[48px] sm:rounded-b-none w-[calc(100%-24px)] sm:w-[500px] max-h-[92vh] sm:max-h-[95vh] overflow-hidden"
+            className="bottom-0 sm:bottom-6 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 z-[2001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-t-[48px] sm:rounded-[48px] w-full sm:w-[500px] max-h-[92vh] sm:max-h-[95vh] overflow-hidden pb-[env(safe-area-inset-bottom)]"
           >
             {/* Apple Sheet Handle */}
             <div className="flex justify-center pt-3 pb-1">
