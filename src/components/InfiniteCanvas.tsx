@@ -770,8 +770,12 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 	return (
 		<div
 			ref={containerRef}
-			className="fixed inset-0 h-full w-full transition-colors duration-500 touch-none"
-			style={{ backgroundColor: currentBgColor }}
+			className="absolute top-0 left-0 right-0 w-full transition-colors duration-500 touch-none"
+			style={{ 
+				backgroundColor: currentBgColor,
+				bottom: '-100px',
+				paddingBottom: '100px'
+			}}
 		>
 			<AnimatePresence>
 				{toast && (
@@ -1066,15 +1070,16 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 			>
 				<motion.div
 					style={{
+						position: "absolute",
+						inset: 0,
 						scale,
 						transformOrigin: `${ORIGIN_X}px ${ORIGIN_Y}px`,
-						width: "100%",
-						height: "100%",
 					}}
 				>
 					<div
-						className="absolute inset-0 pointer-events-none"
+						className="absolute top-0 left-0 right-0 pointer-events-none"
 						style={{
+							bottom: "-100px",
 							backgroundImage:
 								"radial-gradient(circle, rgba(0,0,0,0.08) 1.5px, transparent 1.5px)",
 							backgroundSize: "40px 40px",
