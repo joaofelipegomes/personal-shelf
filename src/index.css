@@ -64,13 +64,14 @@ body {
 
 #root {
   position: fixed;
-  /* O truque nuclear: esticar além do limite inferior do safe area */
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 100%;
+  /* Força o container a vazar 100px para baixo do limite da tela */
+  bottom: -100px !important;
+  padding-bottom: 100px !important;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Mantendo as definições aqui, mas elas não serão aplicadas por causa do seletor :root acima */
