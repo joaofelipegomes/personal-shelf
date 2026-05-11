@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 export const LoadingScreen = ({ bgColor = "white" }: { bgColor?: string }) => {
 	return (
 		<div
-			className="flex flex-col justify-center items-center w-full h-[100ddvh] transition-colors duration-500"
+			className="flex flex-col justify-center items-center w-full h-[100dvh] transition-colors duration-500"
 			style={{ backgroundColor: bgColor }}
 		>
 			<div className="flex flex-col items-center gap-4">

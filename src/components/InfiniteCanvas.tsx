@@ -672,7 +672,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 	if (loading) return <LoadingScreen bgColor={currentBgColor} />;
 	if (notFound)
 		return (
-			<div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100ddvh] text-center">
+			<div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100dvh] text-center">
 				<h2 className="font-bold text-black text-2xl">
 					Prateleira não encontrada
 				</h2>
