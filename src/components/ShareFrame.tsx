@@ -26,6 +26,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 
 		setIsCapturing(true);
 		document.body.classList.add("hide-shadows-for-capture");
+		containerRef.current?.classList.add("hide-shadows-for-capture");
 		try {
 			const SCALE = 4;
 			const containerRect = containerRef.current.getBoundingClientRect();
@@ -117,6 +118,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 			console.error("Erro na captura:", err);
 		} finally {
 			document.body.classList.remove("hide-shadows-for-capture");
+			containerRef.current?.classList.remove("hide-shadows-for-capture");
 			setIsCapturing(false);
 		}
 	};
