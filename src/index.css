@@ -87,24 +87,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.canvas-mode {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: var(--color-canvas-bg);
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  overscroll-behavior: none;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
-}
-
-.canvas-mode::-webkit-scrollbar {
-  display: none;
-}
-
 html.canvas-mode {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -112,9 +94,24 @@ html.canvas-mode {
   user-select: none;
   -webkit-user-select: none;
   touch-action: pan-x pan-y;
+  /* NÃO sobrescrever min-height ou overflow do html */
 }
 
 html.canvas-mode::-webkit-scrollbar {
+  display: none;
+}
+
+body.canvas-mode {
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* NÃO usar overflow:hidden ou height:100% aqui — quebra a safe area */
+}
+
+body.canvas-mode::-webkit-scrollbar {
   display: none;
 }
 
