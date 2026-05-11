@@ -119,6 +119,10 @@ body.canvas-mode::-webkit-scrollbar {
 .hide-shadows-for-capture .card-draggable *,
 .hide-shadows-for-capture .card-draggable img {
   box-shadow: none !important;
+  -webkit-box-shadow: none !important;
   filter: none !important;
+  -webkit-filter: none !important;
   text-shadow: none !important;
+  --tw-shadow: none !important;
+  --tw-drop-shadow: none !important;
 }

@@ -832,6 +832,8 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 				isOpen={isPasswordModalOpen}
 				onClose={() => setIsPasswordModalOpen(false)}
 				showToast={showToast}
+				buttonColor={buttonColor}
+				buttonTextColor={buttonTextColor}
 			/>
 
 			{/* Barra de Ferramentas Superior */}

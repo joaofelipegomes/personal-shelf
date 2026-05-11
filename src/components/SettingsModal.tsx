@@ -284,7 +284,7 @@ export const SettingsModal = ({
 						animate={{ y: 0 }}
 						exit={{ y: "100%" }}
 						transition={{ type: "spring", damping: 25, stiffness: 200 }}
-						className="bottom-0 sm:bottom-6 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 z-[5001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-t-[48px] sm:rounded-[48px] w-full sm:w-[500px] max-h-[92dvh] sm:max-h-[95dvh] overflow-hidden pb-[env(safe-area-inset-bottom)]"
+						className="bottom-[max(0.625rem,env(safe-area-inset-bottom))] left-2.5 right-2.5 sm:bottom-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[5001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[32px] sm:rounded-t-[48px] sm:rounded-b-none w-auto sm:w-[500px] max-h-[92dvh] sm:max-h-[95dvh] overflow-hidden"
 					>
 						{/* Apple Sheet Handle */}
 						<div className="flex justify-center pt-3 pb-1">
@@ -522,7 +522,7 @@ export const SettingsModal = ({
 
 							<button
 								disabled={loading || usernameAvailable === false}
-								className="disabled:bg-gray-400 disabled:opacity-50 shadow-lg mt-4 py-4 rounded-2xl w-full font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+								className="w-full shadow-black/10 shadow-lg border border-black/5 mt-4 py-4 rounded-xl font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:bg-gray-400 disabled:opacity-50"
 								style={{
 									backgroundColor: getVibrantColor(formData.bg_color),
 									color: getContrastColor(getVibrantColor(formData.bg_color)),

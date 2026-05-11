@@ -27,6 +27,12 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 		setIsCapturing(true);
 		document.body.classList.add("hide-shadows-for-capture");
 		containerRef.current?.classList.add("hide-shadows-for-capture");
+
+		// Esperar o browser aplicar os estilos antes de capturar
+		await new Promise((resolve) =>
+			requestAnimationFrame(() => requestAnimationFrame(resolve))
+		);
+
 		try {
 			const SCALE = 4;
 			const containerRect = containerRef.current.getBoundingClientRect();
@@ -170,7 +176,7 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 	return (
 		<div className="fixed inset-0 z-[10000] share-frame-overlay pointer-events-none overflow-hidden">
 			{/* Close Button (X) - Standard size used in modals */}
-			<div className="absolute top-6 right-6 z-[10005] pointer-events-auto">
+			<div className="absolute top-[max(1.5rem,env(safe-area-inset-top))] right-[max(1.5rem,env(safe-area-inset-right))] z-[10005] pointer-events-auto">
 				<button
 					onClick={onClose}
 					className="p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-md text-gray-500 shadow-sm border border-black/5 transition-all cursor-pointer active:scale-95 flex items-center justify-center"
