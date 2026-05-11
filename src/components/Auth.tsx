@@ -79,12 +79,10 @@ export const Auth = () => {
 	}, [username, isSignUp]);
 
 	useEffect(() => {
-		// Limpa estilos que podem ter vindo do Canvas
-		document.documentElement.style.backgroundColor = "";
-		document.body.style.backgroundColor = "";
+		// Mantém a cor de fundo ou define uma específica para o Auth
 		document.documentElement.style.setProperty(
 			"--color-canvas-bg",
-			"transparent",
+			"#f8f8f8",
 		);
 
 		// Reset theme color meta

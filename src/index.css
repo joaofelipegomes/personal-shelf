@@ -48,9 +48,10 @@ html, body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
-  min-height: 100% !important;
+  height: 100% !important;
   background-color: var(--color-canvas-bg) !important;
   overscroll-behavior: none;
+  overflow: hidden;
 }
 
 #root {
@@ -60,6 +61,9 @@ html, body {
   right: 0;
   bottom: 0;
   width: 100%;
+  /* Truque da margem negativa para cobrir a barra inferior do iOS */
+  margin-bottom: -env(safe-area-inset-bottom) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
 }
 
 /* Mantendo as definições aqui, mas elas não serão aplicadas por causa do seletor :root acima */
