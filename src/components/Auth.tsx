@@ -79,16 +79,16 @@ export const Auth = () => {
 	}, [username, isSignUp]);
 
 	useEffect(() => {
-		// Mantém a cor de fundo ou define uma específica para o Auth
-		document.documentElement.style.setProperty(
-			"--color-canvas-bg",
-			"#f8f8f8",
-		);
+		// Define a cor de fundo para o Auth - iOS usa body.backgroundColor para a safe area
+		const bgColor = "#f0f0f0";
+		document.documentElement.style.setProperty("--color-canvas-bg", bgColor);
+		document.documentElement.style.backgroundColor = bgColor;
+		document.body.style.backgroundColor = bgColor;
 
 		// Reset theme color meta
 		const themeMeta = document.querySelector('meta[name="theme-color"]');
 		if (themeMeta) {
-			themeMeta.setAttribute("content", "#ffffff");
+			themeMeta.setAttribute("content", bgColor);
 		}
 	}, []);
 

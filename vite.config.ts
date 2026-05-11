@@ -18,7 +18,7 @@ export default defineConfig({
         description: 'Sua prateleira infinita.',
         theme_color: '#f8f8f8',
         background_color: '#f8f8f8',
-        display: 'fullscreen',
+        display: 'standalone',
         icons: [
           {
             src: 'app-icon.png',

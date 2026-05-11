@@ -45,28 +45,30 @@
 }
 
 html {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  height: 100.1% !important; /* Truque para forçar o preenchimento no iOS */
-  background-color: var(--color-canvas-bg) !important;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-canvas-bg);
 }
 
 body {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background-color: transparent !important;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
   overscroll-behavior: none;
+  overflow: hidden;
 }
 
 #root {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
 }
 
 /* Mantendo as definições aqui, mas elas não serão aplicadas por causa do seletor :root acima */
