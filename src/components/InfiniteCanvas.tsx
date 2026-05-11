@@ -330,7 +330,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 
 			try {
 				console.log("Canvas: 1. Fetching session and profile...");
-				
+
 				const timeoutPromise = new Promise((_, reject) =>
 					setTimeout(() => reject(new Error("Timeout")), 10000),
 				);
@@ -343,7 +343,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 
 				const [sessionResult, profileResult] = await Promise.all([
 					supabase.auth.getSession(),
-					Promise.race([profilePromise, timeoutPromise]) as Promise<any>
+					Promise.race([profilePromise, timeoutPromise]) as Promise<any>,
 				]);
 
 				const authSession = sessionResult.data?.session;
@@ -360,7 +360,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 					}
 					return;
 				}
-				
+
 				console.log("Canvas: Profile found:", profile.id);
 				setProfileData(profile);
 
@@ -370,7 +370,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 					.from("shelf_items")
 					.select("*")
 					.eq("user_id", profile.id);
-				
+
 				if (shelfError) {
 					console.error("Canvas: Shelf items error:", shelfError);
 				}
@@ -669,11 +669,10 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 		}
 	}, [currentBgColor]);
 
-	if (loading)
-		return <LoadingScreen bgColor={currentBgColor} />;
+	if (loading) return <LoadingScreen bgColor={currentBgColor} />;
 	if (notFound)
 		return (
-			<div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100dvh] text-center">
+			<div className="flex flex-col justify-center items-center bg-[#f0f0f0] p-6 w-full h-[100ddvh] text-center">
 				<h2 className="font-bold text-black text-2xl">
 					Prateleira não encontrada
 				</h2>
