@@ -85,7 +85,7 @@ export const PasswordModal = ({ isOpen, onClose, showToast }: PasswordModalProps
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="bottom-[6px] sm:bottom-0 left-1/2 -translate-x-1/2 z-[6001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[48px] sm:rounded-b-none w-[calc(100%-12px)] sm:w-[450px] max-h-[92vh] sm:max-h-[95vh] overflow-hidden"
+            className="bottom-[max(0.75rem,env(safe-area-inset-bottom))] sm:bottom-0 left-1/2 -translate-x-1/2 z-[6001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[48px] sm:rounded-b-none w-[calc(100%-24px)] sm:w-[450px] max-h-[92vh] sm:max-h-[95vh] overflow-hidden"
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
