@@ -771,7 +771,7 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 	return (
 		<div
 			ref={containerRef}
-			className="fixed inset-0 overflow-hidden transition-colors duration-500 touch-none"
+			className="fixed inset-0 transition-colors duration-500 touch-none"
 			style={{ backgroundColor: currentBgColor }}
 		>
 			<AnimatePresence>

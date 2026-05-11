@@ -18,7 +18,7 @@ function ProfilePage() {
   }, []);
 
   return (
-    <div className="fixed inset-0 overflow-hidden selection:bg-black/10">
+    <div className="fixed inset-0 selection:bg-black/10">
       <InfiniteCanvas username={username} />
     </div>
   );
