@@ -469,7 +469,7 @@ export const SettingsModal = ({
 								<span className="text-sm font-bold text-black px-1">
 									Cor de fundo
 								</span>
-								<div className="flex flex-wrap justify-center gap-3 mt-1">
+								<div className="flex justify-center gap-2 sm:gap-3 mt-1">
 									{PASTEL_COLORS.map((color) => (
 										<button
 											key={color.value}
@@ -480,7 +480,7 @@ export const SettingsModal = ({
 													bg_color: color.value,
 												}))
 											}
-											className={`w-10 h-10 rounded-full border-2 transition-all cursor-pointer ${
+											className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 transition-all cursor-pointer ${
 												formData.bg_color === color.value
 													? "border-black scale-110 shadow-md"
 													: "border-transparent hover:scale-105"
