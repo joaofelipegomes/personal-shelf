@@ -151,7 +151,7 @@ export const AddItemModal = ({
 						}}
 						initial={{ y: "100%" }}
 						animate={{ y: 0 }}
-						exit={{ y: "100%" }}
+						exit={{ y: "120%" }}
 						transition={{ type: "spring", damping: 25, stiffness: 200 }}
 						className="bottom-3 left-2.5 right-2.5 sm:bottom-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[2001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-t-[32px] rounded-b-[48px] sm:rounded-t-[48px] sm:rounded-b-none w-auto sm:w-[500px] max-h-[92dvh] sm:max-h-[95dvh] overflow-hidden"
 					>

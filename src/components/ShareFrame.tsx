@@ -25,10 +25,24 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 		if (!containerRef.current || !frameRef.current) return;
 
 		setIsCapturing(true);
-		document.body.classList.add("hide-shadows-for-capture");
-		containerRef.current?.classList.add("hide-shadows-for-capture");
 
-		// Esperar o browser aplicar os estilos antes de capturar
+		// Remover sombras diretamente via inline style (modern-screenshot clona o DOM
+		// e lê getComputedStyle como inline — classes CSS não propagam no clone)
+		type ShadowBackup = { el: HTMLElement; boxShadow: string; filter: string };
+		const shadowBackups: ShadowBackup[] = [];
+
+		const cards = containerRef.current.querySelectorAll<HTMLElement>(".card-draggable, .card-draggable *");
+		cards.forEach((el) => {
+			shadowBackups.push({
+				el,
+				boxShadow: el.style.boxShadow,
+				filter: el.style.filter,
+			});
+			el.style.boxShadow = "none";
+			el.style.filter = "none";
+		});
+
+		// Aguardar o browser aplicar os estilos
 		await new Promise((resolve) =>
 			requestAnimationFrame(() => requestAnimationFrame(resolve))
 		);
@@ -123,11 +137,15 @@ export const ShareFrame = ({ containerRef, onClose }: ShareFrameProps) => {
 		} catch (err) {
 			console.error("Erro na captura:", err);
 		} finally {
-			document.body.classList.remove("hide-shadows-for-capture");
-			containerRef.current?.classList.remove("hide-shadows-for-capture");
+			// Restaurar estilos originais
+			shadowBackups.forEach(({ el, boxShadow, filter }) => {
+				el.style.boxShadow = boxShadow;
+				el.style.filter = filter;
+			});
 			setIsCapturing(false);
 		}
 	};
+
 
 	const downloadFile = (file: File) => {
 		const url = URL.createObjectURL(file);

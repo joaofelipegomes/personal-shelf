@@ -837,7 +837,7 @@ export const InfiniteCanvas = ({
 					onUpdate={updateProfile}
 					onPreviewColorChange={setPreviewColor}
 					showToast={showToast}
-					onChangePassword={() => setIsPasswordModalOpen(true)}
+	
 				/>
 			)}
 
