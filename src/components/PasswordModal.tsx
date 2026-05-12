@@ -93,7 +93,7 @@ export const PasswordModal = ({
 						animate={{ y: 0 }}
 						exit={{ y: "100%" }}
 						transition={{ type: "spring", damping: 25, stiffness: 200 }}
-						className="bottom-3 left-2.5 right-2.5 sm:bottom-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[6001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-[32px] sm:rounded-t-[48px] sm:rounded-b-none w-auto sm:w-[450px] max-h-[92dvh] sm:max-h-[95dvh] overflow-hidden"
+						className="bottom-3 left-2.5 right-2.5 sm:bottom-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[6001] fixed flex flex-col bg-white shadow-2xl border border-black/5 rounded-t-[32px] rounded-b-[48px] sm:rounded-t-[48px] sm:rounded-b-none w-auto sm:w-[450px] max-h-[92dvh] sm:max-h-[95dvh] overflow-hidden"
 					>
 						{/* Handle */}
 						<div className="flex justify-center pt-3 pb-1">
