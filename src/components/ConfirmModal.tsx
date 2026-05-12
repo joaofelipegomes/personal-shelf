@@ -34,7 +34,7 @@ export const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }: Co
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-[max(0.625rem,env(safe-area-inset-bottom))] left-2.5 right-2.5 sm:bottom-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 w-auto sm:w-[450px] bg-white rounded-[32px] sm:rounded-t-[48px] sm:rounded-b-none p-8 pt-2 shadow-2xl border border-black/5 z-[4001] text-center"
+            className="fixed bottom-3 left-2.5 right-2.5 sm:bottom-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 w-auto sm:w-[450px] bg-white rounded-[32px] sm:rounded-t-[48px] sm:rounded-b-none p-8 pt-2 shadow-2xl border border-black/5 z-[4001] text-center"
           >
             {/* Apple Sheet Handle */}
             <div className="flex justify-center pt-3 pb-6">

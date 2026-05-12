@@ -23,6 +23,7 @@ export const Auth = () => {
 	const [password, setPassword] = useState("");
 	const [username, setUsername] = useState("");
 	const [isSignUp, setIsSignUp] = useState(false);
+	const [isForgotPassword, setIsForgotPassword] = useState(false);
 	const [toast, setToast] = useState<{
 		message: string;
 		type: ToastType;
@@ -192,6 +193,24 @@ export const Auth = () => {
 		}
 	};
 
+	const handleResetPassword = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setLoading(true);
+		try {
+			const { error } = await supabase.auth.resetPasswordForEmail(email, {
+				redirectTo: `${window.location.origin}/`,
+			});
+			if (error) throw error;
+			showToast("Link de recuperação enviado! Verifique seu e-mail.", "success");
+			setIsForgotPassword(false);
+			setEmail("");
+		} catch (error: any) {
+			showToast(error.message || "Erro ao enviar link de recuperação.", "error");
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	return (
 		<div className="fixed inset-0 flex justify-center items-center p-6 w-full">
 			{/* Background Animado - Aumentado para garantir cobertura total */}
@@ -219,12 +238,12 @@ export const Auth = () => {
 				<div className="flex flex-col items-center text-center">
 					<StarLogo />
 					<motion.h1
-						key={isSignUp ? "signup-title" : "signin-title"}
+						key={isSignUp ? "signup-title" : isForgotPassword ? "forgot-title" : "signin-title"}
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						className="font-bold text-gray-900 text-3xl tracking-tight"
 					>
-						{isSignUp ? "Criar conta" : "Bem-vindo de volta"}
+						{isSignUp ? "Criar conta" : isForgotPassword ? "Recuperar senha" : "Bem-vindo de volta"}
 					</motion.h1>
 					<motion.p
 						key={isSignUp ? "signup-p" : "signin-p"}
@@ -235,11 +254,13 @@ export const Auth = () => {
 					>
 						{isSignUp
 							? "Junte-se a nós e organize seus projetos"
-							: "Acesse sua prateleira"}
+							: isForgotPassword
+								? "Digite seu e-mail para recuperar o acesso"
+								: "Acesse sua prateleira"}
 					</motion.p>
 				</div>
 
-				<form onSubmit={handleAuth} className="space-y-4">
+				<form onSubmit={isForgotPassword ? handleResetPassword : handleAuth} className="space-y-4">
 					<AnimatePresence mode="popLayout">
 						{isSignUp && (
 							<motion.div
@@ -330,14 +351,26 @@ export const Auth = () => {
 							className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-sm transition-all"
 							placeholder="E-mail"
 						/>
-						<input
-							required
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-base transition-all"
-							placeholder="Senha"
-						/>
+						<AnimatePresence mode="popLayout">
+							{!isForgotPassword && (
+								<motion.div
+									key="password-field"
+									initial={{ opacity: 0, height: 0 }}
+									animate={{ opacity: 1, height: "auto" }}
+									exit={{ opacity: 0, height: 0 }}
+									transition={{ type: "spring", duration: 0.4, bounce: 0 }}
+								>
+									<input
+										required={!isForgotPassword}
+										type="password"
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										className="bg-gray-50 px-5 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-black w-full font-medium text-gray-900 placeholder:text-gray-400 text-base transition-all"
+										placeholder="Senha"
+									/>
+								</motion.div>
+							)}
+						</AnimatePresence>
 					</div>
 
 					<motion.button
@@ -356,6 +389,8 @@ export const Auth = () => {
 								</div>
 							) : isSignUp ? (
 								"Criar minha conta"
+							) : isForgotPassword ? (
+								"Enviar link de recuperação"
 							) : (
 								"Entrar na conta"
 							)}
@@ -363,12 +398,32 @@ export const Auth = () => {
 					</motion.button>
 				</form>
 
-				<div className="pt-2 text-center">
+				<div className="flex flex-col items-center gap-2 pt-2">
+					{!isSignUp && !isForgotPassword && (
+						<button
+							type="button"
+							onClick={() => setIsForgotPassword(true)}
+							className="text-gray-400 hover:text-black text-xs transition-colors cursor-pointer"
+						>
+							Esqueceu a senha?
+						</button>
+					)}
 					<button
-						onClick={() => setIsSignUp(!isSignUp)}
+						type="button"
+						onClick={() => {
+							if (isForgotPassword) {
+								setIsForgotPassword(false);
+							} else {
+								setIsSignUp(!isSignUp);
+							}
+						}}
 						className="text-gray-500 hover:text-black text-sm transition-colors cursor-pointer"
 					>
-						{isSignUp ? (
+						{isForgotPassword ? (
+							<span>
+								Lembrou a senha? <strong className="text-black">Entrar</strong>
+							</span>
+						) : isSignUp ? (
 							<span>
 								Já tem uma conta? <strong className="text-black">Entrar</strong>
 							</span>

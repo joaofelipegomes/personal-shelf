@@ -27,6 +27,8 @@ const ORIGIN_Y = CANVAS_SIZE / 2;
 
 interface InfiniteCanvasProps {
 	username?: string;
+	isPasswordRecovery?: boolean;
+	onRecoveryComplete?: () => void;
 }
 
 const getVibrantColor = (hex: string) => {
@@ -98,7 +100,11 @@ const getContrastColor = (hex: string) => {
 	return brightness > 128 ? "#000000" : "#ffffff";
 };
 
-export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
+export const InfiniteCanvas = ({
+	username,
+	isPasswordRecovery,
+	onRecoveryComplete,
+}: InfiniteCanvasProps) => {
 	const x = useMotionValue(0);
 	const y = useMotionValue(0);
 	const scale = useMotionValue(1);
@@ -123,6 +129,13 @@ export const InfiniteCanvas = ({ username }: InfiniteCanvasProps) => {
 		return localStorage.getItem("shelf_has_interacted") === "true";
 	});
 	const [isOwner, setIsOwner] = useState(false);
+
+	useEffect(() => {
+		if (isPasswordRecovery) {
+			setIsPasswordModalOpen(true);
+			onRecoveryComplete?.();
+		}
+	}, [isPasswordRecovery, onRecoveryComplete]);
 
 	useEffect(() => {
 		if (hasInteracted) {

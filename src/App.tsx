@@ -5,7 +5,7 @@ import { Auth } from './components/Auth';
 import { supabase } from './lib/supabase';
 import { LoadingScreen } from './components/LoadingScreen';
 
-function ProfilePage() {
+function ProfilePage({ isPasswordRecovery, onRecoveryComplete }: { isPasswordRecovery?: boolean; onRecoveryComplete?: () => void }) {
   const { username } = useParams();
   
   useEffect(() => {
@@ -19,7 +19,7 @@ function ProfilePage() {
 
   return (
     <div className="fixed inset-0 selection:bg-black/10">
-      <InfiniteCanvas username={username} />
+      <InfiniteCanvas username={username} isPasswordRecovery={isPasswordRecovery} onRecoveryComplete={onRecoveryComplete} />
     </div>
   );
 }
@@ -30,6 +30,7 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   renderCount++;
   console.log(`App render #${renderCount}, loading=${loading}, session=${!!session}, username=${username}`);
@@ -98,7 +99,11 @@ function App() {
       setSession(newSession);
       
       if (newSession?.user) {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+          const uname = await fetchProfile(newSession.user.id);
+          setUsername(uname);
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           const uname = await fetchProfile(newSession.user.id);
           setUsername(uname);
         }
@@ -127,7 +132,7 @@ function App() {
           element={session && username ? <Navigate to={`/${username}`} replace /> : <Auth />} 
         />
         <Route path="/auth" element={session && username ? <Navigate to={`/${username}`} replace /> : <Auth />} />
-        <Route path="/:username" element={<ProfilePage />} />
+        <Route path="/:username" element={<ProfilePage isPasswordRecovery={isPasswordRecovery} onRecoveryComplete={() => setIsPasswordRecovery(false)} />} />
       </Routes>
     </Router>
   );
